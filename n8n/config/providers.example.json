@@ -1,0 +1,80 @@
+{
+  "feeds": [
+    {
+      "name": "OpenAI News",
+      "url": "https://openai.com/news/rss.xml",
+      "category": "ai"
+    },
+    {
+      "name": "Google DeepMind",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "category": "ai"
+    },
+    {
+      "name": "Microsoft Research",
+      "url": "https://www.microsoft.com/en-us/research/feed/",
+      "category": "tech"
+    },
+    {
+      "name": "Ollama Releases",
+      "url": "https://github.com/ollama/ollama/releases.atom",
+      "category": "local-ai"
+    },
+    {
+      "name": "ROCm Releases",
+      "url": "https://github.com/ROCm/rocm-systems/releases.atom",
+      "category": "amd"
+    },
+    {
+      "name": "TensorRT-LLM Releases",
+      "url": "https://github.com/NVIDIA/TensorRT-LLM/releases.atom",
+      "category": "nvidia"
+    },
+    {
+      "name": "Qiskit Releases",
+      "url": "https://github.com/Qiskit/qiskit/releases.atom",
+      "category": "quantum"
+    },
+    {
+      "name": "Anthropic Claude Code Releases",
+      "url": "https://github.com/anthropics/claude-code/releases.atom",
+      "category": "local-ai"
+    },
+    {
+      "name": "EZB-Pressemitteilungen",
+      "url": "https://www.ecb.europa.eu/rss/press.html",
+      "category": "economy"
+    },
+    {
+      "name": "Federal Reserve Pressemitteilungen",
+      "url": "https://www.federalreserve.gov/feeds/press_all.xml",
+      "category": "economy"
+    }
+  ],
+  "topics": [
+    {
+      "name": "KI",
+      "query": "cat:cs.AI"
+    },
+    {
+      "name": "Quantum",
+      "query": "cat:quant-ph"
+    },
+    {
+      "name": "Embeddings und RAG",
+      "query": "cat:cs.CL AND (ti:retrieval OR ti:embedding)"
+    },
+    {
+      "name": "Lokale Inferenz",
+      "query": "cat:cs.LG AND (ti:quantization OR ti:inference)"
+    },
+    {
+      "name": "Modellarchitekturen",
+      "query": "cat:cs.LG AND (ti:architecture OR abs:architecture)"
+    },
+    {
+      "name": "Effiziente KI-Hardware",
+      "query": "cat:cs.AR AND (ti:inference OR abs:accelerator)"
+    }
+  ]
+}
