@@ -1,0 +1,978 @@
+{
+  "name": "TRC-AI n8n",
+  "version": "1.0.0",
+  "n8n": "2.49.7",
+  "trcApi": "0.1.0",
+  "zone": "Europe/Vienna",
+  "workflows": [
+    {
+      "key": "calendar",
+      "id": "c4aeb7711d95f4a7",
+      "name": "TRC · Kalender synchronisieren",
+      "path": "workflows/google/calendar/calendar.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC Kalender lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "tasks",
+      "id": "5efe97470de23bd7",
+      "name": "TRC · Google Tasks synchronisieren",
+      "path": "workflows/google/tasks/tasks.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC Aufgaben lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "talk",
+      "id": "076b24d51d527874",
+      "name": "TRC · Talk lesen",
+      "path": "workflows/nextcloud/talk.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC Nextcloud Talk lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "dav",
+      "id": "ac01eab6ad178d1a",
+      "name": "TRC · Dateiänderungen per WebDAV",
+      "path": "workflows/nextcloud/dav.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC Nextcloud WebDAV lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "couch",
+      "id": "38b8924a0bd30e2a",
+      "name": "TRC · Obsidian-Datenbankstatus",
+      "path": "workflows/obsidian/couch.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC CouchDB lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "home",
+      "id": "29128bd6fa8f68d6",
+      "name": "TRC · Home-Assistant-Entitäten",
+      "path": "workflows/homeassistant/home.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC Home Assistant lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "stocks",
+      "id": "d9eb93cc85cb1c3d",
+      "name": "TRC · US-Aktien",
+      "path": "workflows/markets/stocks.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC Massive"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "kraken",
+      "id": "918915ea0493448e",
+      "name": "TRC · Kraken-Tagesdaten",
+      "path": "workflows/markets/kraken.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "ecb",
+      "id": "718a82a6af4f6e16",
+      "name": "TRC · EZB-Referenzkurse",
+      "path": "workflows/markets/ecb.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "metals",
+      "id": "49d0ddefeed454ed",
+      "name": "TRC · Edelmetall-Spotpreise",
+      "path": "workflows/markets/metals.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "metal-history",
+      "id": "bf44762d626eded1",
+      "name": "TRC · Edelmetall-Tageshistorie",
+      "path": "workflows/markets/metal-history.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "dealer",
+      "id": "3af34d2bdc6a2848",
+      "name": "TRC · Händler-Geld- und Briefkurse",
+      "path": "workflows/markets/dealer.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "news",
+      "id": "178d0e2792f81e2e",
+      "name": "TRC · KI- und Technikmeldungen",
+      "path": "workflows/news/news.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "research",
+      "id": "5dd0e887f47fefbe",
+      "name": "TRC · arXiv-Recherche",
+      "path": "workflows/research/research.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "calendar-agenda",
+      "id": "a1fa22a21d5fd4f0",
+      "name": "TRC · Kalender-Terminfenster",
+      "path": "workflows/google/calendar/calendar-agenda.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [
+        "TRC Kalender lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "quantum-news",
+      "id": "5f8f9578387b10ee",
+      "name": "TRC · Quantum-Meldungen",
+      "path": "workflows/news/quantum-news.json",
+      "description": "Ruft eine konfigurierte Quelle ab, normalisiert Inhalte und speichert Belege im Cache. TRC-Import ist optional.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "gmail",
+      "id": "9ae09d7c7ef633a3",
+      "name": "TRC · Gmail synchronisieren",
+      "path": "workflows/google/gmail/gmail.json",
+      "description": "Ruft Nachrichten-Metadaten mit Gmail-History-Cursor oder Suchfilter ab. Ein abgelaufener Cursor löst einen begrenzten Neuabgleich aus.",
+      "credentials": [
+        "TRC Gmail lesen"
+      ],
+      "calls": [
+        {
+          "node": "Cache und Importwarteschlange",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "bootstrap",
+      "id": "6bfd7269d9ccf242",
+      "name": "TRC · Data Tables einrichten",
+      "path": "workflows/core/bootstrap.json",
+      "description": "Legt fehlende Tabellen und fehlende Konfigurationszeilen an. Bestehende Einstellungen bleiben erhalten.",
+      "credentials": [],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "errors",
+      "id": "32d8e549dff68b66",
+      "name": "TRC · Ausführungsfehler protokollieren",
+      "path": "workflows/system/errors.json",
+      "description": "Speichert Fehlerklasse und Workflow. Rohfehler, Credentials und Inhaltsdaten bleiben aus der Tabelle.",
+      "credentials": [],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "persist",
+      "id": "72849bb06a84006e",
+      "name": "TRC · Quellbelege und Importaufträge sichern",
+      "path": "workflows/core/persist.json",
+      "description": "Persistiert Änderungen und optional unveränderliche API-Aufträge. Erst danach wird der Quellcursor gespeichert.",
+      "credentials": [],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "queue",
+      "id": "ea9998610d85ca24",
+      "name": "TRC · TRC-Importwarteschlange verarbeiten",
+      "path": "workflows/core/queue.json",
+      "description": "Sendet persistente Aufträge an die verifizierte TRC-API. Fehler werden begrenzt und mit identischer UUID erneut versucht.",
+      "credentials": [
+        "TRC Workflow-API"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "queue-retry",
+      "id": "7a9422066d8bb3ba",
+      "name": "TRC · Einzelnen Import erneut freigeben",
+      "path": "workflows/maintenance/queue-retry.json",
+      "description": "Setzt einen Fehlerauftrag nach Sichtprüfung auf ausstehend. Body und UUID bleiben erhalten.",
+      "credentials": [],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "gmail-write",
+      "id": "f57ba8a2c8c9df1e",
+      "name": "TRC · Gmail senden und Entwurf erstellen",
+      "path": "workflows/google/gmail/gmail-write.json",
+      "description": "Ausschließlich bestätigte Aufrufe mit konfiguriertem Ziel. Unklarer Versand wird nicht automatisch wiederholt.",
+      "credentials": [
+        "TRC Gmail schreiben"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "calendar-write",
+      "id": "5178086feb4694f6",
+      "name": "TRC · Kalenderänderung freigeben",
+      "path": "workflows/google/calendar/calendar-write.json",
+      "description": "Ausschließlich bestätigte Aufrufe mit konfiguriertem Ziel. Unklarer Versand wird nicht automatisch wiederholt.",
+      "credentials": [
+        "TRC Kalender schreiben"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "tasks-write",
+      "id": "162990e279c593d7",
+      "name": "TRC · Aufgabenänderung freigeben",
+      "path": "workflows/google/tasks/tasks-write.json",
+      "description": "Ausschließlich bestätigte Aufrufe mit konfiguriertem Ziel. Unklarer Versand wird nicht automatisch wiederholt.",
+      "credentials": [
+        "TRC Aufgaben schreiben"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "talk-write",
+      "id": "d853302e270a46be",
+      "name": "TRC · Talk-Nachricht freigeben",
+      "path": "workflows/nextcloud/talk-write.json",
+      "description": "Ausschließlich bestätigte Aufrufe mit konfiguriertem Ziel. Unklarer Versand wird nicht automatisch wiederholt.",
+      "credentials": [
+        "TRC Nextcloud Talk schreiben"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "ha-write",
+      "id": "8a809ac8b35840bb",
+      "name": "TRC · Home-Assistant-Aktion freigeben",
+      "path": "workflows/homeassistant/ha-write.json",
+      "description": "Ausschließlich bestätigte Aufrufe mit konfiguriertem Ziel. Unklarer Versand wird nicht automatisch wiederholt.",
+      "credentials": [
+        "TRC Home Assistant Aktionen"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "smtp-write",
+      "id": "11b50b13e3067f4e",
+      "name": "TRC · SMTP-Nachricht freigeben",
+      "path": "workflows/notifications/smtp-write.json",
+      "description": "Ausschließlich bestätigte Aufrufe mit konfiguriertem Ziel. Unklarer Versand wird nicht automatisch wiederholt.",
+      "credentials": [
+        "TRC SMTP"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "dav-export",
+      "id": "4d790cbdfe22b4ed",
+      "name": "TRC · Markdown-Bericht zu WebDAV exportieren",
+      "path": "workflows/obsidian/dav-export.json",
+      "description": "Ausschließlich bestätigte Aufrufe mit konfiguriertem Ziel. Unklarer Versand wird nicht automatisch wiederholt.",
+      "credentials": [
+        "TRC Nextcloud WebDAV schreiben"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "dispatch",
+      "id": "1529b4635b55fb89",
+      "name": "TRC · Benachrichtigung zustellen",
+      "path": "workflows/notifications/dispatch.json",
+      "description": "Ruft den freigegebenen Kanal auf und wechselt nach eindeutiger Ablehnung auf maximal einen konfigurierten Ersatzkanal.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Zustellen gmail-write",
+          "targetId": "f57ba8a2c8c9df1e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen gmail-write smtp-write",
+          "targetId": "11b50b13e3067f4e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen gmail-write talk-write",
+          "targetId": "d853302e270a46be",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen gmail-write ha-write",
+          "targetId": "8a809ac8b35840bb",
+          "optional": true
+        },
+        {
+          "node": "Zustellen smtp-write",
+          "targetId": "11b50b13e3067f4e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen smtp-write gmail-write",
+          "targetId": "f57ba8a2c8c9df1e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen smtp-write talk-write",
+          "targetId": "d853302e270a46be",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen smtp-write ha-write",
+          "targetId": "8a809ac8b35840bb",
+          "optional": true
+        },
+        {
+          "node": "Zustellen talk-write",
+          "targetId": "d853302e270a46be",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen talk-write gmail-write",
+          "targetId": "f57ba8a2c8c9df1e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen talk-write smtp-write",
+          "targetId": "11b50b13e3067f4e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen talk-write ha-write",
+          "targetId": "8a809ac8b35840bb",
+          "optional": true
+        },
+        {
+          "node": "Zustellen ha-write",
+          "targetId": "8a809ac8b35840bb",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen ha-write gmail-write",
+          "targetId": "f57ba8a2c8c9df1e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen ha-write smtp-write",
+          "targetId": "11b50b13e3067f4e",
+          "optional": true
+        },
+        {
+          "node": "Ersatz zustellen ha-write talk-write",
+          "targetId": "d853302e270a46be",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "gmail-message",
+      "id": "fe762a440f00064f",
+      "name": "TRC · Freigegebene Gmail-Nachricht lesen",
+      "path": "workflows/google/gmail/gmail-message.json",
+      "description": "Gibt begrenzten MIME-Klartext zu einer ausdrücklich angeforderten ID aus. Speichert keinen Nachrichtentext.",
+      "credentials": [
+        "TRC Gmail lesen"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "gmail-attachment",
+      "id": "c2155fbfc45e7c1a",
+      "name": "TRC · Gmail-Anhang kontrolliert lesen",
+      "path": "workflows/google/gmail/gmail-attachment.json",
+      "description": "Prüft den in Google gemeldeten Dateiumfang und gibt nur einen ausdrücklich angeforderten Anhang als Base64 aus.",
+      "credentials": [
+        "TRC Gmail lesen"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "dav-download",
+      "id": "ac88ca91d15e8b14",
+      "name": "TRC · WebDAV-Datei kontrolliert übernehmen",
+      "path": "workflows/nextcloud/dav-download.json",
+      "description": "Ausschließlich bestätigter Download unterhalb einer erlaubten Quelle, mit HEAD-Prüfung und ETag-Bedingung.",
+      "credentials": [
+        "TRC Nextcloud WebDAV lesen"
+      ],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "daily",
+      "id": "a08cf2ccafedbc9b",
+      "name": "TRC · Tagesbericht",
+      "path": "workflows/reports/daily.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "weekly",
+      "id": "efa3dd53d206ab33",
+      "name": "TRC · Wochenbericht",
+      "path": "workflows/reports/weekly.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "monthly",
+      "id": "dacae06acff7477f",
+      "name": "TRC · Monatsbericht",
+      "path": "workflows/reports/monthly.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "yearly",
+      "id": "6dd849879674f996",
+      "name": "TRC · Jahresbericht",
+      "path": "workflows/reports/yearly.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "manual",
+      "id": "372aa0961f4116b2",
+      "name": "TRC · Manueller Bericht",
+      "path": "workflows/reports/manual.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "market",
+      "id": "fe9257e4195a5ff5",
+      "name": "TRC · Marktbericht",
+      "path": "workflows/reports/market.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "system",
+      "id": "9d42bada9d19cf07",
+      "name": "TRC · Systembericht",
+      "path": "workflows/reports/system.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "ai",
+      "id": "4c7573270ad18eb9",
+      "name": "TRC · KI-News-Bericht",
+      "path": "workflows/reports/ai.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "quantum",
+      "id": "37df3ceb27f35964",
+      "name": "TRC · Quantum-Bericht",
+      "path": "workflows/reports/quantum.json",
+      "description": "Erstellt aus dem unabhängigen n8n-Cache Text, Markdown, HTML und JSON. Optionale Archivierung oder freigegebene Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Bericht zur TRC-Übertragung vormerken",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        },
+        {
+          "node": "Freigegeben zustellen",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "health",
+      "id": "7f82301358b526b8",
+      "name": "TRC · Dienste prüfen",
+      "path": "workflows/system/health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "trc-health",
+      "id": "95f683c6b0c8dcb7",
+      "name": "TRC · TRC-API prüfen",
+      "path": "workflows/system/trc-health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [
+        "TRC Workflow-API"
+      ],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "ha-health",
+      "id": "fd536a8aee6f7b3b",
+      "name": "TRC · Home Assistant prüfen",
+      "path": "workflows/system/ha-health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [
+        "TRC Home Assistant lesen"
+      ],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "nextcloud-health",
+      "id": "1f7ab77e0e7a42fb",
+      "name": "TRC · Nextcloud prüfen",
+      "path": "workflows/system/nextcloud-health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "talk-health",
+      "id": "cc4153d6a08ed92b",
+      "name": "TRC · Nextcloud Talk prüfen",
+      "path": "workflows/system/talk-health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [
+        "TRC Nextcloud Talk lesen"
+      ],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "couch-health",
+      "id": "1824d43078d684cf",
+      "name": "TRC · CouchDB prüfen",
+      "path": "workflows/system/couch-health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [
+        "TRC CouchDB lesen"
+      ],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "hermes-health",
+      "id": "8d3b347b7ce28b72",
+      "name": "TRC · Hermes-Gateway prüfen",
+      "path": "workflows/system/hermes-health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [
+        "TRC Hermes Gateway"
+      ],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "ollama-health",
+      "id": "99317ad1f5b437be",
+      "name": "TRC · Ollama prüfen",
+      "path": "workflows/system/ollama-health.json",
+      "description": "Prüft konfigurierte Verfügbarkeitsendpunkte und hält den letzten beobachteten Status fest.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Status sichern",
+          "targetId": "72849bb06a84006e",
+          "optional": false
+        }
+      ],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "maintenance",
+      "id": "8791919be7ff9a30",
+      "name": "TRC · Tabellen prüfen und pflegen",
+      "path": "workflows/maintenance/maintenance.json",
+      "description": "Entfernt zeitlich abgelaufene Cache- und Erfolgszeilen. Ausstehende oder fehlerhafte Importaufträge bleiben erhalten.",
+      "credentials": [],
+      "calls": [],
+      "active": false,
+      "schedule": true
+    },
+    {
+      "key": "queue-status",
+      "id": "472d7435add1e086",
+      "name": "TRC · Importwarteschlange einsehen",
+      "path": "workflows/system/queue-status.json",
+      "description": "Zeigt Stichprobenzahlen und Fehleraufträge ohne Request-Bodies.",
+      "credentials": [],
+      "calls": [],
+      "active": false,
+      "schedule": false
+    },
+    {
+      "key": "system-alerts",
+      "id": "3abf4b7eb7d9c4f5",
+      "name": "TRC · Systemwarnungen und Wiederherstellung",
+      "path": "workflows/system/system-alerts.json",
+      "description": "Erkennt Dienstfehler, gestoppte Importe, Workflowfehler, Speicherwarnungen und veraltete Quellen. Optionale deduplizierte Zustellung.",
+      "credentials": [],
+      "calls": [
+        {
+          "node": "Warnung über freigegebenen Kanal",
+          "targetId": "1529b4635b55fb89",
+          "optional": true
+        }
+      ],
+      "active": false,
+      "schedule": true
+    }
+  ]
+}

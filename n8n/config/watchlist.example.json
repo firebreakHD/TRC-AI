@@ -1,0 +1,20 @@
+{
+  "stocks":[
+    {"symbol":"NVDA","name":"NVIDIA","category":"stock","group":"ai"},
+    {"symbol":"AMD","name":"AMD","category":"stock","group":"ai"},
+    {"symbol":"MSFT","name":"Microsoft","category":"stock","group":"tech"},
+    {"symbol":"GOOGL","name":"Alphabet","category":"stock","group":"tech"},
+    {"symbol":"IONQ","name":"IonQ","category":"stock","group":"quantum"},
+    {"symbol":"RGTI","name":"Rigetti Computing","category":"stock","group":"quantum"},
+    {"symbol":"QBTS","name":"D-Wave Quantum","category":"stock","group":"quantum"}
+  ],
+  "kraken":[
+    {"symbol":"BTC","name":"Bitcoin","pair":"XBTUSD","currency":"USD","category":"crypto","exchange":"Kraken"},
+    {"symbol":"ETH","name":"Ethereum","pair":"ETHUSD","currency":"USD","category":"crypto","exchange":"Kraken"},
+    {"symbol":"SOL","name":"Solana","pair":"SOLUSD","currency":"USD","category":"crypto","exchange":"Kraken"}
+  ],
+  "metals":[
+    {"symbol":"XAU","name":"Gold","category":"metal"},
+    {"symbol":"XAG","name":"Silber","category":"metal"}
+  ]
+}

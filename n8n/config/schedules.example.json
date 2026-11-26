@@ -1,0 +1,16 @@
+{
+  "gmail":"0 */5 * * * *","calendar":"20 */5 * * * *","calendar-agenda":"20 2-59/5 * * * *","tasks":"40 */10 * * * *",
+  "talk":"15 1-59/5 * * * *","dav":"30 3-59/10 * * * *","couch":"15 4-59/15 * * * *","home":"35 */5 * * * *",
+  "metals":"5 11 * * * *","metal-history":"0 34 19 * * *","dealer":"15 12 * * * *","stocks":"0 25 23 * * 1-5",
+  "kraken":"0 17 * * * *","ecb":"0 5 18 * * 1-5","news":"0 10 */6 * * *","quantum-news":"0 20 */12 * * *",
+  "research":"0 30 */12 * * *","health":"0 */5 * * * *","trc-health":"5 1-59/5 * * * *",
+  "ha-health":"1 2-59/5 * * * *",
+  "nextcloud-health":"8 2-59/5 * * * *",
+  "talk-health":"15 2-59/5 * * * *",
+  "couch-health":"22 2-59/5 * * * *",
+  "hermes-health":"29 2-59/5 * * * *",
+  "ollama-health":"36 2-59/5 * * * *",
+  "system-alerts":"25 4-59/5 * * * *",
+  "queue":"0 */2 * * * *","maintenance":"0 50 3 * * *","daily":"0 30 6 * * *","weekly":"0 0 18 * * 0",
+  "monthly":"0 5 18 1 * *","yearly":"0 10 18 1 1 *"
+}

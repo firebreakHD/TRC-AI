@@ -1,0 +1,8 @@
+{
+  "trc_config": {"key":"string","value_json":"string"},
+  "trc_state": {"key":"string","value_json":"string","updated_at":"string"},
+  "trc_cache": {"key":"string","area":"string","source":"string","external_id":"string","observed_at":"string","stored_at":"string","payload_json":"string"},
+  "trc_queue": {"key":"string","area":"string","source":"string","body":"string","status":"string","attempts":"number","next_at":"string","finished_at":"string","error":"string"},
+  "trc_delivery": {"key":"string","channel":"string","status":"string","digest":"string","sent_at":"string","error":"string"},
+  "trc_events": {"key":"string","source":"string","status":"string","seen_at":"string","details_json":"string"}
+}
