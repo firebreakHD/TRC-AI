@@ -18,13 +18,14 @@ jobs:
           python-version: "3.11"
       - name: Validate app metadata and workflow contract
         run: |
-          python -m pip install pyyaml jsonschema openapi-spec-validator playwright
+          python -m pip install pyyaml jsonschema openapi-spec-validator playwright "pydantic>=2,<3" "uvicorn>=0.39,<1"
           python tests/validate.py
+          PYTHONPATH=trc_ai python tests/network.py
           node --check trc_ai/trc/static/app.js
           bash -n trc_ai/run.sh
           bash -n tests/smoke.sh
       - name: Build Linux amd64 app
-        run: docker build --platform linux/amd64 -t trc-ai:0.1.0 trc_ai
+        run: docker build --platform linux/amd64 -t trc-ai:0.2.0 trc_ai
       - name: Chrome, API, migrations and backup restore
         env:
           TRC_TEST_BROWSER: "1"

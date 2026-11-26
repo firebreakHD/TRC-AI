@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: TRC-AI Workflow API
-  version: 0.1.0
-  description: Vertrag für Hintergrundimporte und Statusabfragen durch n8n.
+  version: 0.2.0
+  description: Vertrag für Hintergrundimporte, Statusabfragen und administrative Netzwerkeinstellungen.
 servers:
   - url: /api/v1
 security:
@@ -69,12 +69,118 @@ paths:
           $ref: '#/components/responses/ClientError'
         '503':
           $ref: '#/components/responses/Unavailable'
+  /admin/network:
+    get:
+      operationId: getNetworkSettings
+      summary: Startoptionen, Verbindungsinformationen und Dienste lesen
+      description: Erfordert das Admin-Token. Liefert Zugangsdaten ausschließlich als Vorhandenseinsindikator.
+      responses:
+        '200':
+          description: Startoptionen, Kontext und Dienste
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [startup, connection, effect, services]
+                properties:
+                  startup: {type: object}
+                  connection: {type: object}
+                  effect: {type: object}
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/IntegrationStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /admin/network/services/{service}:
+    parameters:
+      - $ref: '#/components/parameters/Service'
+    put:
+      operationId: updateNetworkService
+      summary: Einstellungen eines Dienstes speichern
+      description: Erfordert das Admin-Token. Bei der Dienstkennung trc werden Adressen aus den nativen Add-on-Optionen gelesen.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationUpdate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Integration'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ClientError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /admin/network/services/{service}/test:
+    parameters:
+      - $ref: '#/components/parameters/Service'
+    post:
+      operationId: testNetworkService
+      summary: Gespeicherte interne Verbindung eines aktivierten Dienstes prüfen
+      description: Erfordert das Admin-Token. Ein negativer Verbindungstest wird im Prüfergebnis gemeldet.
+      responses:
+        '200':
+          $ref: '#/components/responses/Integration'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ClientError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
 components:
+  parameters:
+    Service:
+      name: service
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-z][a-z0-9_-]{1,39}$'
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
   schemas:
+    IntegrationSettings:
+      type: object
+      properties:
+        enabled: {type: boolean, default: false}
+        internal_url: {type: string, maxLength: 600}
+        public_url: {type: string, maxLength: 600}
+        auth_mode: {type: string, enum: [none, basic, bearer]}
+        credential_reference: {type: string, maxLength: 120}
+        timeout_seconds: {type: [integer, 'null'], minimum: 1, maximum: 30}
+        tls_verification: {type: string, enum: [system, custom_ca]}
+    IntegrationUpdate:
+      allOf:
+        - $ref: '#/components/schemas/IntegrationSettings'
+        - type: object
+          properties:
+            username: {type: [string, 'null'], writeOnly: true, maxLength: 300}
+            secret: {type: [string, 'null'], writeOnly: true, maxLength: 4096}
+            remove_secret: {type: boolean, default: false}
+      unevaluatedProperties: false
+    IntegrationStatus:
+      allOf:
+        - $ref: '#/components/schemas/IntegrationSettings'
+        - type: object
+          required: [key, label, has_credential, last_check, last_success_at]
+          properties:
+            key: {type: string}
+            label: {type: string}
+            has_credential: {type: boolean}
+            last_check:
+              type: [object, 'null']
+              properties:
+                status: {type: string, enum: [available, unauthorized, unavailable, tls_error, unexpected]}
+                message: {type: string}
+                checked_at: {type: string, format: date-time}
+            last_success_at: {type: [string, 'null'], format: date-time}
     Batch:
       type: object
       required: [source, records]
@@ -155,6 +261,12 @@ components:
             code: {type: string}
             message: {type: string}
   responses:
+    Integration:
+      description: Einstellungen und Prüfergebnis ohne Zugangsdaten
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IntegrationStatus'
     ClientError:
       description: Die Anfrage kann nicht unverändert wiederholt werden.
       content:

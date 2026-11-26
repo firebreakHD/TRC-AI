@@ -19,9 +19,9 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, JsonValue, Val
 import psycopg
 from starlette.concurrency import run_in_threadpool
 
-from . import settings, storage
+from . import network, settings, storage
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 MAX_BODY = 512 * 1024
 STATIC = Path(__file__).parent / "static"
 logger = logging.getLogger(__name__)
@@ -85,11 +85,12 @@ class ApiError(Exception):
 @asynccontextmanager
 async def lifespan(app):
     app.state.tokens = settings.load_tokens()
+    app.state.network_startup = network.load_startup()
     app.state.schema_ready = False
     yield
 
 
-app = FastAPI(version=VERSION, lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(version=VERSION, lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None, redirect_slashes=False)
 
 
 @app.middleware("http")
@@ -252,3 +253,36 @@ async def workflow_records(request: Request, area: Area):
         raise ApiError(422, "invalid_request", "Der Anfrageinhalt ist ungültig.") from exc
     except psycopg.Error as exc:
         raise ApiError(503, "database_unavailable", "Der Import ist vorübergehend nicht verfügbar.") from exc
+
+@app.get("/api/v1/admin/network")
+async def network_dashboard(request: Request):
+    await authorize(request, "admin")
+    context = {"scheme": request.scope["scheme"], "trusted_proxy": request.scope.get("trc_trusted_proxy", False),
+               "forwarded_host": request.scope.get("trc_forwarded_host")}
+    try:
+        return await run_in_threadpool(network.dashboard, app.state.network_startup, context)
+    except (OSError, ValueError) as exc:
+        raise ApiError(503, "network_settings_unavailable", "Netzwerkeinstellungen konnten nicht geladen werden.") from exc
+
+
+@app.put("/api/v1/admin/network/services/{service}")
+async def network_update(request: Request, service: str):
+    await authorize(request, "admin")
+    command = await read_model(request, network.IntegrationUpdate)
+    try:
+        return await run_in_threadpool(network.update, service, command, app.state.network_startup)
+    except ValueError as exc:
+        raise ApiError(422, "invalid_network_settings", str(exc)[:240]) from exc
+    except OSError as exc:
+        raise ApiError(503, "network_settings_unavailable", "Netzwerkeinstellungen konnten nicht gespeichert werden.") from exc
+
+
+@app.post("/api/v1/admin/network/services/{service}/test")
+async def network_test(request: Request, service: str):
+    await authorize(request, "admin")
+    try:
+        return await run_in_threadpool(network.probe, service, app.state.network_startup)
+    except ValueError as exc:
+        raise ApiError(422, "invalid_network_settings", str(exc)[:240]) from exc
+    except OSError as exc:
+        raise ApiError(503, "network_settings_unavailable", "Prüfung konnte nicht gespeichert werden.") from exc

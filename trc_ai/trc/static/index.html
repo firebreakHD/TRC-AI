@@ -13,6 +13,7 @@
     <nav aria-label="Verwaltung">
       <a href="#uebersicht" aria-current="page">Übersicht</a>
       <a href="#system">System</a>
+      <a href="#netzwerk">Netzwerk und Integrationen</a>
     </nav>
   </aside>
   <main>
@@ -51,6 +52,45 @@
           <button>Speichern</button>
           <p id="refresh-description" class="hint"></p>
           <p id="preferences-message" role="status"></p>
+        </form>
+      </section>
+      <section id="netzwerk" aria-labelledby="network-title">
+        <h1 id="network-title">Netzwerk und Integrationen</h1>
+        <h2>Add-on-Startkonfiguration</h2>
+        <p class="hint">In Home Assistant unter Konfiguration ändern und das Add-on neu starten. Den Host-Port und Ingress verwaltet Home Assistant.</p>
+        <dl id="network-startup"></dl>
+        <h2>Dienstverbindungen</h2>
+        <label for="network-service">Dienst</label>
+        <select id="network-service"></select>
+        <p id="network-load" role="status"></p>
+        <form id="network-form" hidden>
+          <div id="network-custom" hidden>
+            <label for="network-key">Dienstkennung</label>
+            <input id="network-key" pattern="[a-z][a-z0-9_-]{1,39}" maxlength="40">
+          </div>
+          <label class="check"><input id="network-enabled" type="checkbox"> Aktiviert</label>
+          <div class="network-fields">
+            <label>Interne Adresse<input id="network-internal" type="url" maxlength="600"></label>
+            <label>Öffentliche Adresse<input id="network-public" type="url" maxlength="600"></label>
+            <label>Zertifikatsprüfung
+              <select id="network-tls"><option value="system">System-CA</option><option value="custom_ca">System-CA und eigene CA</option></select>
+            </label>
+            <label>Zeitlimit (Sekunden)<input id="network-timeout" type="number" min="1" max="30"></label>
+            <label>Authentifizierung
+              <select id="network-auth"><option value="none">Keine</option><option value="basic">Benutzername und Passwort</option><option value="bearer">Bearer-Token</option></select>
+            </label>
+            <label>Credential-Referenz<input id="network-reference" maxlength="120"></label>
+          </div>
+          <div id="network-credentials" class="network-fields" hidden>
+            <label id="network-name-label">Benutzername<input id="network-name" maxlength="300" autocomplete="off"></label>
+            <label>Neues Passwort oder Token<input id="network-secret" type="password" maxlength="4096" autocomplete="new-password"></label>
+            <label class="check"><input id="network-remove" type="checkbox"> Gespeicherte Zugangsdaten entfernen</label>
+          </div>
+          <p id="network-credential" class="hint"></p>
+          <button type="submit">Speichern</button>
+          <button id="network-test" type="button">Gespeicherte Verbindung testen</button>
+          <p id="network-check"></p>
+          <p id="network-result" role="status"></p>
         </form>
       </section>
     </div>

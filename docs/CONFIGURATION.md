@@ -10,3 +10,5 @@
 Das Backend liefert das versionierte Einstellungsschema an die Oberfläche. Bei Speicherung wird eine validierte Datei atomar ausgetauscht. Bei einer bereits beschädigten Datei liefert das Control Center validierte Standardwerte. Die Datei bleibt bis zur nächsten gültigen Speicherung für die Diagnose erhalten.
 
 Ressourcenstatus und eigentliche Limits sind getrennt. PostgreSQL läuft mit 64 MiB Shared Buffers und maximal 20 Verbindungen. Linux-Systemspeicher, Systemlast und sichtbare logische CPUs stellen keine zugesicherte Container-Kapazität dar.
+
+Native Netzwerkoptionen, Dienstprofile und Proxy-Konfiguration siehe [Netzwerk und Integrationen](NETWORK.md).
