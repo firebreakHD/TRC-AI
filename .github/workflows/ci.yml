@@ -41,3 +41,37 @@ jobs:
         with:
           name: trc-ai-haos-amd64
           path: trc-ai-haos-amd64.zip
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: linux-amd64
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: trc-ai-haos-amd64
+      - name: Publish tested archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(sed -n 's/^version: "\([^"]*\)"$/\1/p' trc_ai/config.yaml)
+          test "$TAG" = "v$version"
+          git archive --format=zip --output=trc-ai-n8n-contract.zip HEAD contracts docs/N8N_INTEGRATION.md
+          unzip -tq trc-ai-haos-amd64.zip
+          unzip -tq trc-ai-n8n-contract.zip
+          sha256sum trc-ai-haos-amd64.zip trc-ai-n8n-contract.zip > SHA256SUMS
+          cat > release-notes.md <<NOTES
+          Entwicklungsfassung für HAOS amd64 mit Control Center, PostgreSQL, Qdrant und authentifizierter Workflow-API.
+
+          - \`trc-ai-haos-amd64.zip\` enthält den Quellordner für ein lokales HAOS-Add-on.
+          - \`trc-ai-n8n-contract.zip\` enthält OpenAPI, Vertrag, Beispiel und n8n-Anleitung.
+          - \`SHA256SUMS\` enthält die Prüfsummen beider ZIP-Dateien.
+
+          [Installation](https://github.com/$GITHUB_REPOSITORY/blob/$TAG/docs/INSTALLATION.md) · [Testbericht](https://github.com/$GITHUB_REPOSITORY/blob/$TAG/docs/TEST_REPORT.md) · [Entwicklungsstand](https://github.com/$GITHUB_REPOSITORY/blob/$TAG/docs/DEVELOPMENT_STATUS.md)
+          NOTES
+          gh release create "$TAG" --verify-tag --title "TRC-AI $version" --prerelease --notes-file release-notes.md \
+            trc-ai-haos-amd64.zip trc-ai-n8n-contract.zip SHA256SUMS
