@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-image=${1:-trc-ai:0.1.0}
+image=${1:-trc-ai:0.2.0}
 instance="trc-test-$$-$RANDOM"
 data="$instance-data"
 archive="$instance-archive"
+fixture=$(mktemp -d)
 restored="$instance-restored"
 export TRC_TEST_ADMIN="admin_test_only_000000000000000000000"
 export TRC_TEST_WORKFLOW="workflow_test_only_000000000000000000"
 cleanup() {
     docker rm -f "$instance" >/dev/null 2>&1 || true
     docker volume rm "$data" "$archive" "$restored" >/dev/null 2>&1 || true
+    rm -rf -- "$fixture"
 }
 trap cleanup EXIT
 trap 'docker logs --tail=100 "$instance" >&2 || true' ERR
@@ -71,8 +73,14 @@ curl -fsS "$TRC_TEST_URL/healthz"
 printf '\nAutomatischer PostgreSQL-Neustart geprüft.\n'
 
 stop
+printf '{"admin_token":"%s","workflow_token":"%s","network_proxy_mode":"trusted_proxy","network_trusted_proxies":["127.0.0.1"],"network_tls_mode":"proxy_https","network_public_url":"https://after.example.invalid"}\n'     "$TRC_TEST_ADMIN" "$TRC_TEST_WORKFLOW" |
+    docker run --rm -i -v "$data:/data" --entrypoint sh "$image" -c 'umask 077; cat > /data/options.json'
 start "$data"
 python3 tests/smoke.py persisted
+openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=trc-proxy-fixture     -addext subjectAltName=IP:127.0.0.1 -out "$fixture/test-ca.pem" -keyout "$fixture/test-key.pem" 2>/dev/null
+docker cp "$fixture/test-ca.pem" "$instance:/tmp/trc-test-ca.pem"
+docker cp "$fixture/test-key.pem" "$instance:/tmp/trc-test-key.pem"
+docker exec -i "$instance" python - "$TRC_TEST_ADMIN" /tmp/trc-test-ca.pem /tmp/trc-test-key.pem < tests/network_proxy.py
 docker stats --no-stream --format 'Docker-Statistik im Leerlauf: CPU {{.CPUPerc}}, RAM {{.MemUsage}}' "$instance"
 docker exec "$instance" python -c '
 import os

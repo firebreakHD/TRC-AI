@@ -1,5 +1,11 @@
 # Änderungsverlauf
 
+## 0.2.0
+
+- Native Optionen für getrennte interne und öffentliche Adressen, Proxy-Vertrauen, CA und Timeout.
+- Control Center mit persistenten Dienstprofilen und lesenden Verbindungstests.
+- Dokumentierte lokale, VPN-, Ingress- und HTTPS-Proxy-Betriebsarten.
+
 ## 0.1.0
 
 - amd64-Entwicklungsgrundlage für HAOS mit Control Center und separaten Administrations- und Workflow-Tokens.

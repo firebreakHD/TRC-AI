@@ -37,3 +37,12 @@ dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
   .brand { margin: 0 0 .5rem; }
   nav { display: flex; }
 }
+select { font: inherit; padding: .65rem .8rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--surface); color: var(--text); max-width: 100%; }
+.network-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr)); gap: .25rem 1rem; }
+.network-fields input, .network-fields select { display: block; width: 100%; margin-top: .35rem; }
+.check { display: flex; align-items: center; gap: .4rem; }
+#network-startup dd { overflow-wrap: anywhere; }
+#netzwerk h2 { margin-top: 1.75rem; }
+@media (max-width: 44rem) {
+  nav { flex-wrap: wrap; }
+}
