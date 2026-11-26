@@ -117,7 +117,7 @@ components:
         unchanged: {type: integer, minimum: 0}
     SystemStatus:
       type: object
-      required: [status, version, postgresql, resources]
+      required: [status, version, postgresql, resources, qdrant]
       properties:
         status: {type: string, const: ok}
         version: {type: string}
@@ -127,6 +127,13 @@ components:
           properties:
             version: {type: string}
             database_bytes: {type: integer, minimum: 0}
+        qdrant:
+          type: object
+          required: [available]
+          properties:
+            available: {type: boolean}
+            version: {type: string}
+            collections: {type: integer, minimum: 0}
         resources:
           type: object
           required: [visible_cpu_count, system_load_1m, system_memory_total_bytes, system_memory_available_bytes, data_disk_total_bytes, data_disk_free_bytes]

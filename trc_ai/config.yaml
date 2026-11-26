@@ -1,0 +1,26 @@
+name: TRC-AI
+description: Control Center, PostgreSQL, Qdrant und API für persönliche Automatisierungen
+version: "0.1.0"
+slug: trc_ai
+url: https://github.com/firebreakHD/TRC-AI
+arch:
+  - amd64
+startup: application
+boot: auto
+backup: cold
+init: false
+ingress: true
+ingress_port: 8099
+panel_admin: true
+panel_title: TRC Control Center
+panel_icon: mdi:brain
+ports:
+  8099/tcp: null
+ports_description:
+  8099/tcp: Direkter API-Zugriff über ein vertrauenswürdiges Netz oder einen HTTPS-Reverse-Proxy
+options:
+  admin_token: ""
+  workflow_token: ""
+schema:
+  admin_token: password
+  workflow_token: password

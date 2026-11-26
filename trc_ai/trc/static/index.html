@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TRC Control Center</title>
+  <link rel="stylesheet" href="./ui/style.css">
+  <script src="./ui/app.js" defer></script>
+</head>
+<body>
+  <aside>
+    <p class="brand">TRC Control Center</p>
+    <nav aria-label="Verwaltung">
+      <a href="#uebersicht" aria-current="page">Übersicht</a>
+      <a href="#system">System</a>
+    </nav>
+  </aside>
+  <main>
+    <section id="login" aria-labelledby="login-title">
+      <h1 id="login-title">Control Center öffnen</h1>
+      <form id="login-form">
+        <label for="token">Administrations-Token</label>
+        <input id="token" type="password" autocomplete="off" minlength="32" maxlength="128" required>
+        <button>Anmelden</button>
+      </form>
+      <p class="hint">Das Token wird in den Optionen des TRC-AI-Add-ons festgelegt.</p>
+      <p id="login-message" role="status"></p>
+    </section>
+    <div id="workspace" hidden>
+      <div class="top">
+        <span id="status" role="status"></span>
+        <button id="logout" type="button">Abmelden</button>
+      </div>
+      <section id="uebersicht" aria-labelledby="overview-title">
+        <h1 id="overview-title">Systemübersicht</h1>
+        <dl>
+          <div><dt>TRC-AI</dt><dd id="version"></dd></div>
+          <div><dt>PostgreSQL</dt><dd id="database"></dd></div>
+          <div><dt>Qdrant</dt><dd id="qdrant"></dd></div>
+          <div><dt>Sichtbare logische CPUs</dt><dd id="cpu"></dd></div>
+          <div><dt>Systemlast (1 Minute)</dt><dd id="load"></dd></div>
+          <div><dt>Verfügbarer Systemspeicher</dt><dd id="memory"></dd></div>
+          <div><dt>Freier Datenspeicher</dt><dd id="disk"></dd></div>
+        </dl>
+      </section>
+      <section id="system" aria-labelledby="system-title">
+        <h1 id="system-title">System</h1>
+        <form id="preferences">
+          <label id="refresh-label" for="refresh">Aktualisierungsintervall</label>
+          <input id="refresh" type="number" step="1" required aria-describedby="refresh-description">
+          <button>Speichern</button>
+          <p id="refresh-description" class="hint"></p>
+          <p id="preferences-message" role="status"></p>
+        </form>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
