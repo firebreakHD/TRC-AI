@@ -1,0 +1,43 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-amd64:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate app metadata and workflow contract
+        run: |
+          python -m pip install pyyaml jsonschema openapi-spec-validator playwright
+          python tests/validate.py
+          node --check trc_ai/trc/static/app.js
+          bash -n trc_ai/run.sh
+          bash -n tests/smoke.sh
+      - name: Build Linux amd64 app
+        run: docker build --platform linux/amd64 -t trc-ai:0.1.0 trc_ai
+      - name: Chrome, API, migrations and backup restore
+        env:
+          TRC_TEST_BROWSER: "1"
+        run: |
+          python -m playwright install --with-deps chromium
+          bash tests/smoke.sh
+      - name: Audit Python dependencies installed in image
+        run: |
+          python -m pip install pip-audit
+          python -m pip_audit --require-hashes --disable-pip -r trc_ai/requirements.lock
+      - name: Package local HAOS app
+        run: git archive --format=zip --output=trc-ai-haos-amd64.zip HEAD trc_ai
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trc-ai-haos-amd64
+          path: trc-ai-haos-amd64.zip

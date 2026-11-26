@@ -1,0 +1,7 @@
+configuration:
+  admin_token:
+    name: Administrations-Token
+    description: Zufälliger Schlüssel mit 32 bis 128 Zeichen für das Control Center.
+  workflow_token:
+    name: Workflow-Token
+    description: Separater zufälliger Schlüssel mit 32 bis 128 Zeichen für n8n. Leer deaktiviert den Datenimport.

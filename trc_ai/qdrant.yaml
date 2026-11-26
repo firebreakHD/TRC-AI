@@ -1,0 +1,20 @@
+log_level: WARN
+telemetry_disabled: true
+
+storage:
+  storage_path: /data/qdrant/storage
+  snapshots_path: /data/qdrant/snapshots
+  on_disk_payload: true
+  performance:
+    max_search_threads: 2
+    optimizer_cpu_budget: 1
+
+service:
+  host: 127.0.0.1
+  http_port: 6333
+  grpc_port: null
+  max_workers: 2
+  enable_cors: false
+
+cluster:
+  enabled: false
