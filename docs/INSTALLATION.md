@@ -1,6 +1,15 @@
 # Installation
 
-## Privates HAOS-Repository
+## GitHub-App-Store
+
+1. Öffne in Home Assistant **Einstellungen → Apps → App-Store → ⋮ → Repositories**. Füge `https://github.com/firebreakHD/TRC-AI#codex/backend-integration` hinzu, falls TRC-AI aus diesem Kanal noch fehlt. Für ein Update behältst du den vorhandenen Repository-Eintrag bei.
+2. Aktualisiere den Store. Öffne **TRC-AI** und installiere oder aktualisiere die App.
+3. Setze bei einer Neuinstallation ein Administrations-Token. `python3 -c 'import secrets; print(secrets.token_urlsafe(32))'` erzeugt einen passenden Wert. Für n8n ist ein zweiter, unabhängiger Wert vorgesehen. Ein drittes Token ermöglicht optional einen eigenen Chat-Zugang.
+4. Starte die App und öffne TRC Intelligence über die Home-Assistant-Seitenleiste.
+
+[Upgrade](UPGRADE.md) · [Wissensdatenbank einrichten](KNOWLEDGE.md)
+
+## Lokale Installation für isolierte Tests
 
 1. Das Archiv des gewünschten GitHub-Releases mit einem berechtigten Konto herunterladen. Den darin enthaltenen Ordner `trc_ai` in den HAOS-Ordner für lokale Add-ons kopieren. Beispielsweise ist das die Freigabe `addons` des Samba-Add-ons.
 2. In Home Assistant **Einstellungen → Apps** öffnen. Den Store aktualisieren, **TRC-AI** unter den lokalen Apps öffnen und installieren. Ältere HA-Versionen nennen den Bereich **Add-ons**.
@@ -11,19 +20,13 @@ Nach dem Start das vorhandene Ollama unter **Netzwerk und Integrationen** hinter
 
 Für Updates aus dem privaten Repository den App-Ordner durch den Ordner des neueren Releases ersetzen und im Store die Metadaten neu laden. Das persistente `/data` im Supervisor gehört zur App und bleibt beim Update getrennt vom Quellordner. Vor Updates ein kaltes Add-on-Backup anlegen.
 
-Falls das Repository später für die Supervisor-Instanz lesbar ist, kann die Repository-URL im Add-on-Store eingerichtet werden. HAOS-Ingress belegt keinen HAOS-Host-Port. Unter **Netzwerk** einen freien Host-Port für direkten Zugriff zuordnen. Bei belegtem Host-Port 8099 einen anderen Port wählen. Für interne Verbindungen zum App-Host oder einen Reverse-Proxy den [n8n-Leitfaden](N8N_INTEGRATION.md) verwenden.
+HAOS-Ingress belegt keinen HAOS-Host-Port. Unter **Netzwerk** kannst du einen freien Host-Port für direkten Zugriff zuordnen. Für interne Verbindungen zum App-Host oder einen Reverse-Proxy gilt der [n8n-Leitfaden](N8N_INTEGRATION.md).
 
 ## Lokale Prüfung
 
 ```sh
-docker build --platform linux/amd64 -t trc-ai:0.2.0 trc_ai
+docker build --platform linux/amd64 -t trc-ai:0.3.0 trc_ai
 bash tests/smoke.sh
 ```
 
 Bei verwalteter TLS-Inspektion kann der lokale CA-Verbund über das BuildKit-Secret `--secret id=pip_ca,src=/etc/ssl/certs/ca-certificates.crt` übergeben werden. Das Zertifikatsbündel wird dabei nicht im Image gespeichert.
-
-## GitHub-App-Store
-
-Das Repository ist öffentlich und kann im Home-Assistant-App-Store unter Repositories hinzugefügt werden. Für ein Update den beim ersten Installieren verwendeten Kanal beibehalten. Nach der Installation öffnet Ingress TRC Intelligence. Admin- und Workflow-Token werden aus dem bisherigen Datenverzeichnis übernommen. Für einen eigenen Chat-Zugang kann optional ein drittes Token in der App-Konfiguration gesetzt werden.
-
-[Upgrade](UPGRADE.md)

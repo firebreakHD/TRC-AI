@@ -29,7 +29,14 @@ class Handler(BaseHTTPRequestHandler):
         content = data["messages"][-1]["content"]
         if "LANGSAMTEST" in content:
             time.sleep(15)
-        answer = "Synthetische Antwort [1]." if '"belege"' in content else "Synthetische Antwort."
+        answer = "Synthetische Antwort."
+        if content.startswith('{"frage":'):
+            prompt = json.loads(content)
+            evidence = prompt["belege"]
+            if "BLAUKOMET" in prompt["frage"]:
+                evidence = [item for item in evidence if "BLAUKOMET" in item["text"]]
+            if evidence:
+                answer = f"Synthetische Antwort [{evidence[0]['id']}]."
         if "KONTEXTTEST" in content and any("VORHERTEST" in entry["content"] for entry in data["messages"][:-1]):
             answer = "Gesprächskontext übernommen."
         self.send_response(200)
