@@ -701,6 +701,8 @@
       const changed = currentPage !== page;
       currentPage=page;
       document.body.classList.toggle("chat-active",page==="chat");
+      byId("new-chat").hidden = page !== "chat";
+      byId("back-to-chat").hidden = page === "chat";
       if (changed) {
         byId("workspace").scrollTop = 0;
         chatOptions.open = false;
