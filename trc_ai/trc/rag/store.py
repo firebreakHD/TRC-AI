@@ -285,16 +285,16 @@ class Store:
             """).fetchone()
             )
 
-    def list_documents(self, after=""):
+    def list_documents(self, after="", query=""):
         with self.connection() as conn:
             return conn.execute(
                 """
                 SELECT j.path, j.digest, j.state, j.attempts, j.error_code, d.indexed_at,
                        d.digest AS indexed_digest, (SELECT count(*) FROM rag_chunks c WHERE c.path=j.path) AS chunks
                 FROM rag_jobs j LEFT JOIN rag_documents d USING (path)
-                WHERE j.path > %s ORDER BY j.path LIMIT 101
+                WHERE j.path > %s AND strpos(lower(j.path),lower(%s)) > 0 ORDER BY j.path LIMIT 101
             """,
-                (after,),
+                (after, query),
             ).fetchall()
 
     def claim(self):

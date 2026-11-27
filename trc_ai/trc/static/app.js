@@ -1,6 +1,7 @@
 const byId = (id) => document.getElementById(id);
 const bytes = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
 let token = "";
+let accessRole = "";
 let refreshSeconds = 15;
 let timer;
 let session = new AbortController();
@@ -45,15 +46,16 @@ async function poll() {
 }
 
 function navigate() {
-  const pages = ["uebersicht", "wissen", "dokumente", "betrieb", "system", "netzwerk"];
+  const pages = ["chat", "routing", "uebersicht", "wissen", "dokumente", "betrieb", "system", "netzwerk"];
   const hash = location.hash.slice(1);
-  const page = pages.includes(hash) ? hash : "uebersicht";
+  const page = pages.includes(hash) && (hash === "chat" || accessRole === "admin") ? hash : "chat";
   for (const id of pages) {
     byId(id).hidden = id !== page;
     const link = document.querySelector(`a[href="#${id}"]`);
-    if (id === page) link.setAttribute("aria-current", "page");
-    else link.removeAttribute("aria-current");
+    if (id === page) link?.setAttribute("aria-current", "page");
+    else link?.removeAttribute("aria-current");
   }
+  if (token) window.intelligence?.navigate(page);
   if (page === "dokumente" && token) void loadDocuments();
   if (page === "betrieb" && token) void loadBackend();
   if (page === "netzwerk" && token) void loadNetwork();
@@ -67,23 +69,32 @@ byId("login-form").addEventListener("submit", async (event) => {
   token = byId("token").value.trim();
   byId("login-message").textContent = "Anmeldung wird geprüft …";
   try {
-    const { values, schema } = await api("admin/preferences");
-    const field = schema.properties.refresh_seconds;
-    byId("refresh").min = field.minimum;
-    byId("refresh").max = field.maximum;
-    byId("refresh").value = values.refresh_seconds;
-    byId("refresh-label").textContent = field.title;
-    byId("refresh-description").textContent = field.description;
-    refreshSeconds = values.refresh_seconds;
+    const identity = await api("intelligence/session");
+    accessRole = identity.role;
+    for (const element of document.querySelectorAll("aside [data-admin]")) element.hidden = accessRole !== "admin";
+    if (accessRole === "admin") {
+      const { values, schema } = await api("admin/preferences");
+      const field = schema.properties.refresh_seconds;
+      byId("refresh").min = field.minimum;
+      byId("refresh").max = field.maximum;
+      byId("refresh").value = values.refresh_seconds;
+      byId("refresh-label").textContent = field.title;
+      byId("refresh-description").textContent = field.description;
+      refreshSeconds = values.refresh_seconds;
+    }
+    window.intelligence?.login(identity);
+    byId("sidebar").hidden = false;
+    byId("sidebar-toggle").hidden = false;
     byId("login").hidden = true;
     byId("workspace").hidden = false;
     byId("login-form").reset();
     byId("login-message").textContent = "";
     byId("logout").focus();
     navigate();
-    void poll();
+    if (accessRole === "admin") void poll();
   } catch (error) {
     token = "";
+    accessRole = "";
     byId("login-message").textContent = error.message;
   } finally {
     button.disabled = false;
@@ -95,6 +106,10 @@ byId("logout").addEventListener("click", () => {
   session = new AbortController();
   clearTimeout(timer);
   token = "";
+  accessRole = "";
+  window.intelligence?.logout();
+  byId("sidebar").hidden = true;
+  byId("sidebar-toggle").hidden = true;
   for (const id of ["knowledge-query", "document-upload"]) byId(id).reset();
   for (const id of ["knowledge-sources", "knowledge-output", "knowledge-message", "document-list", "documents-message", "backend-errors", "backend-message", "backend-jobs"]) byId(id).replaceChildren();
   byId("backend-pause").disabled = true;
@@ -329,7 +344,9 @@ async function loadDocuments(append = false) {
   const signal = session.signal;
   const message = byId("documents-message");
   try {
-    const suffix = append && documentCursor ? "?after=" + encodeURIComponent(documentCursor) : "";
+    const filters = new URLSearchParams({q: byId("document-search").value.trim()});
+    if (append && documentCursor) filters.set("after",documentCursor);
+    const suffix = "?" + filters;
     const { documents, next } = await api("knowledge/documents" + suffix);
     if (signal.aborted) return;
     const list = byId("document-list");
@@ -351,6 +368,13 @@ async function loadDocuments(append = false) {
         }));
         item.append(" ", button);
       }
+      if (row.state === "done") {
+        const open = document.createElement("button");
+        open.type = "button";
+        open.textContent = "Chat starten";
+        open.addEventListener("click", () => void window.intelligence.fromDocument(row.path));
+        item.append(" ", open);
+      }
       list.append(item);
     }
   } catch (error) {
@@ -359,6 +383,7 @@ async function loadDocuments(append = false) {
 }
 
 byId("documents-next").addEventListener("click", () => void loadDocuments(true));
+byId("document-search").addEventListener("input", () => void loadDocuments());
 byId("documents-refresh").addEventListener("click", () => void loadDocuments());
 byId("document-upload").addEventListener("submit", event => {
   event.preventDefault();

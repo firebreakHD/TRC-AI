@@ -1,6 +1,6 @@
 name: TRC-AI
 description: Control Center, Wissensdatenbank und API für persönliche Automatisierungen
-version: "0.2.0"
+version: "0.3.0"
 slug: trc_ai
 url: https://github.com/firebreakHD/TRC-AI
 arch:
@@ -24,6 +24,7 @@ ports_description:
 options:
   admin_token: ""
   workflow_token: ""
+  chat_token: ""
   network_public_url: ""
   network_internal_url: ""
   network_proxy_mode: direct
@@ -49,6 +50,7 @@ options:
 schema:
   admin_token: password
   workflow_token: password
+  chat_token: password
   network_public_url: str?
   network_internal_url: str?
   network_proxy_mode: list(direct|trusted_proxy)

@@ -21,3 +21,9 @@ bash tests/smoke.sh
 ```
 
 Bei verwalteter TLS-Inspektion kann der lokale CA-Verbund über das BuildKit-Secret `--secret id=pip_ca,src=/etc/ssl/certs/ca-certificates.crt` übergeben werden. Das Zertifikatsbündel wird dabei nicht im Image gespeichert.
+
+## GitHub-App-Store
+
+Das Repository ist öffentlich und kann im Home-Assistant-App-Store unter Repositories hinzugefügt werden. Für ein Update den beim ersten Installieren verwendeten Kanal beibehalten. Nach der Installation öffnet Ingress TRC Intelligence. Admin- und Workflow-Token werden aus dem bisherigen Datenverzeichnis übernommen. Für einen eigenen Chat-Zugang kann optional ein drittes Token in der App-Konfiguration gesetzt werden.
+
+[Upgrade](UPGRADE.md)

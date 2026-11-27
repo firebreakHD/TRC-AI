@@ -5,7 +5,8 @@ Anzeigenamen aus dem Manifest in n8n anlegen und pro Node wirklich auswählen. E
 | n8n-Typ | Nutzung |
 | --- | --- |
 | Generic OAuth2 API | Je ein Lese- und Schreibzugang für Gmail, Google Calendar und Google Tasks |
-| Generic Header Auth | `Authorization: Bearer <Token>` für TRC-Workflow-API und separat für Home Assistant und Hermes |
+| Bearer Auth | TRC Workflow-API. Nur den Tokenwert eintragen. |
+| Generic Header Auth | `Authorization: Bearer <Token>` für Home Assistant und Hermes |
 | Generic Basic Auth | Nextcloud App-Passwort für WebDAV bzw. Talk, passender dedizierter CouchDB-Lesezugang |
 | Generic Query Auth | Massive mit Feld `apiKey` |
 | SMTP | Relay, TLS und Anmeldedaten direkt im Credential speichern |

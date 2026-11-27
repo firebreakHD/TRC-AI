@@ -11,3 +11,7 @@ Ein konfiguriertes Ollama- oder OpenAI-kompatibles Antwortmodell erhält die Bel
 Die Workflow-API behält ihr Schreibformat und den Idempotenzschlüssel. Eine Admin-Lesefunktion gibt strukturierte Daten seitenweise aus. Home Assistant, Hermes, Sprache und n8n laufen eigenständig. Die API startet auch bei einem Ausfall des Modellanbieters.
 
 [Konfiguration](KNOWLEDGE.md) · [API](BACKEND_API.md) · [Backups](BACKUP_RESTORE.md)
+
+TRC Intelligence speichert Chatverlauf und Steuerungszustände in einer unabhängigen SQLite-Datei unter /data/config. Die zentrale Python-Tool-Registry prüft Modus, Profile und Freigaben. Der Chat nutzt bestehende Dienstprofile und kann innerhalb der laufenden App bei Ausfall der Wissensdatenbanken weiter mit Ollama und Home Assistant arbeiten. Admin und Chat teilen HTML, Navigation und Designsystem. Die API prüft Berechtigungen für jeden Pfad.
+
+[Chat](CHAT_SYSTEM.md) · [Routing](ROUTING.md)

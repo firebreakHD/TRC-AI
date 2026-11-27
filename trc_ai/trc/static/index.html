@@ -3,25 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TRC Control Center</title>
+  <title>TRC Intelligence</title>
   <link rel="stylesheet" href="./ui/style.css">
   <script src="./ui/app.js" defer></script>
+  <script src="./ui/intelligence.js" defer></script>
 </head>
 <body>
-  <aside>
-    <p class="brand">TRC Control Center</p>
-    <nav aria-label="Verwaltung">
-      <a href="#uebersicht" aria-current="page">Übersicht</a>
-      <a href="#wissen">Wissensdatenbank</a>
-      <a href="#dokumente">Dokumente</a>
-      <a href="#betrieb">Dienste und Datenbanken</a>
-      <a href="#system">System</a>
-      <a href="#netzwerk">Netzwerk und Integrationen</a>
+  <button type="button" id="sidebar-toggle" aria-expanded="false" aria-controls="sidebar" aria-label="Seitenleiste ein- oder ausblenden" hidden>☰</button>
+  <aside id="sidebar" hidden>
+    <div class="sidebar-heading"><p class="brand">TRC Intelligence</p></div>
+    <button id="new-chat" type="button">＋ Neuer Chat</button>
+    <label class="visually-hidden" for="chat-search">Chats durchsuchen</label>
+    <input id="chat-search" type="search" placeholder="Chats durchsuchen" maxlength="150">
+    <nav aria-label="Arbeit">
+      <a href="#chat">Chat</a>
+      <a href="#dokumente" data-admin>Dokumente</a>
+      <a href="#wissen" data-admin>Wissensdatenbank</a>
     </nav>
+    <details id="history-shell" open>
+      <summary>Chatverlauf</summary>
+      <label class="check"><input type="checkbox" id="archived-chats"> Archiv anzeigen</label>
+      <div id="history-list"></div>
+      <button id="history-more" type="button" hidden>Weitere Chats</button>
+    </details>
+    <details id="administration" data-admin>
+      <summary>Administration</summary>
+      <nav aria-label="Administration">
+        <a href="#uebersicht">Übersicht</a>
+        <a href="#betrieb">Dienste, Datenbanken und Modelle</a>
+        <a href="#routing">Routing und Assistenten</a>
+        <a href="#netzwerk">Netzwerk und Integrationen</a>
+        <a href="#system">Systemeinstellungen</a>
+      </nav>
+    </details>
+    <footer class="sidebar-footer">
+      <span id="operator-label"></span>
+      <label class="visually-hidden" for="ui-theme">Darstellung</label>
+      <select id="ui-theme" title="Darstellung"><option value="system">System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select>
+      <button type="button" id="logout">Abmelden</button>
+    </footer>
   </aside>
   <main>
     <section id="login" aria-labelledby="login-title">
-      <h1 id="login-title">Control Center öffnen</h1>
+      <p class="login-brand">TRC Intelligence</p>
+        <h1 id="login-title">Anmelden</h1>
       <form id="login-form">
         <label for="token">Administrations-Token</label>
         <input id="token" type="password" autocomplete="off" minlength="32" maxlength="128" required>
@@ -33,9 +58,67 @@
     <div id="workspace" hidden>
       <div class="top">
         <span id="status" role="status"></span>
-        <button id="logout" type="button">Abmelden</button>
+
       </div>
-      <section id="uebersicht" aria-labelledby="overview-title">
+      <section id="chat" aria-labelledby="chat-title">
+        <header class="chat-header">
+          <h1 id="chat-title">Neuer Chat</h1>
+          <button type="button" id="chat-older" hidden>Ältere Nachrichten</button>
+        </header>
+        <div id="chat-scroll" tabindex="0" aria-label="Unterhaltung">
+          <div id="chat-empty"><span>TRC Intelligence</span><h2>Wobei kann ich helfen?</h2></div>
+          <div id="chat-messages" aria-live="polite"></div>
+        </div>
+        <div class="composer-region">
+          <form id="composer">
+            <div id="chat-files"></div>
+            <label class="visually-hidden" for="chat-input">Nachricht</label>
+            <textarea id="chat-input" rows="2" maxlength="3000" placeholder="Schreib eine Nachricht …"></textarea>
+            <div class="composer-actions">
+              <button id="attach-button" type="button" aria-label="Dokument anhängen" title="Dokument anhängen">＋</button>
+              <input type="file" id="chat-picker" hidden multiple accept=".pdf,.md,.txt,.docx,.xlsx,.csv,.tsv,.png,.jpg,.jpeg,.tif,.tiff">
+              <label class="visually-hidden" for="chat-profile">Assistent</label>
+              <select id="chat-profile"></select>
+              <label class="visually-hidden" for="chat-mode">Anfrage-Modus</label>
+              <select id="chat-mode"></select>
+              <button id="chat-stop" type="button" hidden>Abbrechen</button>
+              <button id="chat-send" type="submit">Senden ↑</button>
+            </div>
+          </form>
+          <p id="chat-notice" role="status"></p>
+        </div>
+        <div id="chat-drop" hidden>Dateien hier ablegen</div>
+      </section>
+      <section id="routing" data-admin aria-labelledby="routing-title">
+        <h1 id="routing-title">Routing und Assistenten</h1>
+        <p id="route-availability"></p>
+        <form id="routing-form">
+          <label>Kontext-Nachrichtenpaare <input id="routing-turns" type="number" min="1" max="20" required></label>
+          <label>Maximale Anfragezeit (Sekunden) <input id="routing-timeout" type="number" min="3" max="45" required></label>
+          <label>Home Assistant-Entitäten, je Zeile Alias = Entität<textarea id="routing-entities" rows="4"></textarea></label>
+          <label>Schaltfreigaben für Licht, eine Entität je Zeile<textarea id="routing-actions" rows="3"></textarea></label>
+          <label>Freigegebener n8n-Bericht-Webhook <input id="routing-webhook" placeholder="/webhook/…"></label>
+          <h2>Assistentenprofile</h2>
+          <label>Profil <select id="routing-profile"></select></label>
+          <label>Name <input id="profile-name" maxlength="40" required></label>
+          <label>Beschreibung <input id="profile-description" maxlength="180"></label>
+          <label>Anweisung <textarea id="profile-instruction" rows="4" maxlength="2000" required></textarea></label>
+          <label>Modell <input id="profile-model" maxlength="120"></label>
+          <label>Sprache <input id="profile-language" maxlength="30" required></label>
+          <label>Vorgesehene Stimme <input id="profile-voice" maxlength="100"></label>
+          <label>Bevorzugter Modus <select id="profile-preferred"></select></label>
+          <fieldset><legend>Werkzeugfreigaben</legend><div id="profile-tools"></div></fieldset>
+          <button type="submit">Speichern</button>
+          <p id="routing-message" role="status"></p>
+        </form>
+        <form id="route-test">
+          <label>Routing prüfen<input id="route-test-text" minlength="3" maxlength="1200" required></label>
+          <button>Testen</button>
+          <p id="route-test-result" role="status"></p>
+        </form>
+        <h2>Letzte Routingergebnisse</h2><ul id="routing-recent"></ul>
+      </section>
+      <section id="uebersicht" data-admin aria-labelledby="overview-title">
         <h1 id="overview-title">Systemübersicht</h1>
         <dl>
           <div><dt>TRC-AI</dt><dd id="version"></dd></div>
@@ -47,7 +130,7 @@
           <div><dt>Freier Datenspeicher</dt><dd id="disk"></dd></div>
         </dl>
       </section>
-      <section id="system" aria-labelledby="system-title">
+      <section id="system" data-admin aria-labelledby="system-title">
         <h1 id="system-title">System</h1>
         <form id="preferences">
           <label id="refresh-label" for="refresh">Aktualisierungsintervall</label>
@@ -57,7 +140,7 @@
           <p id="preferences-message" role="status"></p>
         </form>
       </section>
-      <section id="wissen" aria-labelledby="knowledge-title">
+      <section id="wissen" data-admin aria-labelledby="knowledge-title">
         <h1 id="knowledge-title">Wissensdatenbank</h1>
         <form id="knowledge-query">
           <label>Frage<textarea id="knowledge-question" required minlength="3" maxlength="1500" rows="3"></textarea></label>
@@ -69,18 +152,19 @@
         <p id="knowledge-output"></p>
         <ol id="knowledge-sources"></ol>
       </section>
-      <section id="dokumente" aria-labelledby="documents-title">
+      <section id="dokumente" data-admin aria-labelledby="documents-title">
         <h1 id="documents-title">Dokumente</h1>
         <form id="document-upload">
           <label>Datei <input type="file" id="document-file" required accept=".md,.txt,.pdf,.docx,.xlsx,.csv,.tsv,.png,.jpg,.jpeg,.tif,.tiff"></label>
           <button>Hochladen und vormerken</button>
         </form>
+        <label>Dokumente durchsuchen<input id="document-search" type="search" maxlength="150"></label>
         <p id="documents-message" role="status"></p>
         <button type="button" id="documents-refresh">Liste aktualisieren</button>
         <ul id="document-list"></ul>
         <button type="button" id="documents-next" hidden>Weitere Dokumente</button>
       </section>
-      <section id="betrieb" aria-labelledby="services-title">
+      <section id="betrieb" data-admin aria-labelledby="services-title">
         <h1 id="services-title">Dienste und Datenbanken</h1>
         <dl>
           <div><dt>PostgreSQL</dt><dd id="backend-db"></dd></div>
@@ -106,7 +190,7 @@
         <h2>Backup</h2>
         <p>Kalte Add-on-Sicherung und Wiederherstellung in Home Assistant ausführen. Für den lokalen Ordner unter /share eine separate Sicherung erstellen.</p>
       </section>
-      <section id="netzwerk" aria-labelledby="network-title">
+      <section id="netzwerk" data-admin aria-labelledby="network-title">
         <h1 id="network-title">Netzwerk und Integrationen</h1>
         <h2>Add-on-Startkonfiguration</h2>
         <p class="hint">In Home Assistant unter Konfiguration ändern und das Add-on neu starten. Den Host-Port und Ingress verwaltet Home Assistant.</p>

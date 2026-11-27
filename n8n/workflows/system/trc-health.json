@@ -114,7 +114,7 @@
           }
         },
         "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth"
+        "genericAuthType": "httpBearerAuth"
       },
       "id": "4c83384e924a45bc",
       "name": "Verfügbarkeit prüfen",
@@ -126,7 +126,7 @@
       ],
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
+        "httpBearerAuth": {
           "name": "TRC Workflow-API"
         }
       }

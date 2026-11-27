@@ -1,5 +1,11 @@
 # Änderungsverlauf
 
+## 0.3.0
+
+- Chat, Assistentenprofile, Dokumentanhänge und kontrolliertes Anfrage-Routing.
+- Integrierte Administration mit getrenntem Chat-Zugang.
+- Kompatible Workflow-API und fortbestehende Wissensdatenbank.
+
 ## 0.2.0
 
 - Dokumentverarbeitung mit OCR, Word-Struktur über Docling, Excel-Normalisierung, segmentierten Quellen und persistenter Warteschlange.

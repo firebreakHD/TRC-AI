@@ -7,3 +7,5 @@ Nächster Schritt ist ein Test auf einer separaten HAOS-Instanz oder in einem vo
 Danach Nextcloud-Dateiquellen und lokal synchronisierte Obsidian-Vaults mit eigenen Zugangsregeln anbinden. JARVIS und FRIDAY sind als spätere Assistentenprofile vorbereitet. Beeper folgt nach der Abnahme der übrigen Integrationen.
 
 [Testbericht](TEST_REPORT.md) · [Offene Punkte](OPEN_ISSUES.md)
+
+0.3.0 erweitert das veröffentlichte Backend um Chat, Assistenten, Chat-Anhänge, Routing und die gemeinsame Oberfläche. Der nächste Integrationsschritt ist die Abnahme mit dem vorhandenen Ollama und Home Assistant auf dem Fujitsu. Danach folgen die geplanten externen Dokumentquellen und Sprachkanäle.

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: TRC-AI Backend API
-  version: 0.2.0
+  version: 0.3.0
   description: Vertrag für Hintergrundimporte, Statusabfragen und administrative Netzwerkeinstellungen.
 servers:
   - url: /api/v1
@@ -293,6 +293,154 @@ paths:
                 paused: {type: boolean}
       responses:
         '200': {description: Gespeicherter Pausenzustand}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/session:
+    get:
+      operationId: intelligenceSession
+      summary: Rolle, Assistenten und Modi anzeigen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats:
+    get:
+      operationId: listConversations
+      summary: Unterhaltungen suchen und auflisten
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    post:
+      operationId: createConversation
+      summary: Unterhaltung mit Modus und Profil erstellen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '201': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+    get:
+      operationId: getConversation
+      summary: Nachrichten, Quellen und Anhänge lesen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    patch:
+      operationId: updateConversation
+      summary: Titel, Profil, Modus oder Archivstatus ändern
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    delete:
+      operationId: deleteConversation
+      summary: Gespeicherten Chat löschen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/attachments/{name}:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: name, in: path, required: true, schema: {type: string}}
+    put:
+      operationId: uploadConversationAttachment
+      summary: Privaten oder dauerhaft freigegebenen Anhang verarbeiten
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '201': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/attachments/{attachment}:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: attachment, in: path, required: true, schema: {type: string, format: uuid}}
+    delete:
+      operationId: removeConversationAttachment
+      summary: Einen noch ungebundenen Anhang löschen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: submitConversationMessage
+      summary: Idempotent eine Nachricht vormerken und Antwort starten
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_id, text]
+              properties:
+                request_id: {type: string, format: uuid}
+                text: {type: string, maxLength: 3000}
+                attachments:
+                  type: array
+                  maxItems: 4
+                  items: {type: string, format: uuid}
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '202': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages/{message}/cancel:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: message, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: cancelConversationGeneration
+      summary: Laufende Modellerzeugung abbrechen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages/{message}/retry:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: message, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: retryConversationGeneration
+      summary: Letzte Modellantwort wiederholen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '202': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages/{message}/confirm:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: message, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: confirmConversationAction
+      summary: Vorgemerkte Aktion einmalig ausführen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /admin/intelligence:
+    get:
+      operationId: readIntelligencePolicy
+      summary: Routing-Einstellungen und letzte Zustände lesen
+      description: Erfordert das Admin-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    put:
+      operationId: writeIntelligencePolicy
+      summary: Profile und Werkzeugfreigaben ändern
+      description: Erfordert das Admin-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /admin/intelligence/test-routing:
+    post:
+      operationId: previewIntelligenceRoute
+      summary: Route ermitteln ohne einen Dienst aufzurufen
+      responses:
+        '200': {description: Name der ermittelten Route}
         '401': {$ref: '#/components/responses/Unauthorized'}
 components:
   parameters:

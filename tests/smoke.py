@@ -55,7 +55,7 @@ assert request("GET", NETWORK, WORKFLOW)[0] == 401
 assert request("GET", NETWORK, ADMIN)[1]["connection"]["trusted_proxy"] is False
 assert request("POST", PROFILE + "/test", ADMIN)[0] == 422
 assert request("POST", INGEST, ADMIN, TASK, FIRST)[0] == 401
-assert b"TRC Control Center" in request("GET", "/")[1]
+assert b"TRC Intelligence" in request("GET", "/")[1]
 assert b"Authorization" in request("GET", "/ui/app.js")[1]
 assert send(TASK, FIRST) == (200, {"applied": 1, "unchanged": 0})
 

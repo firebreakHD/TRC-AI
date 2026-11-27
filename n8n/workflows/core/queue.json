@@ -166,7 +166,7 @@
           }
         },
         "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "genericAuthType": "httpBearerAuth",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -191,7 +191,7 @@
       ],
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
+        "httpBearerAuth": {
           "name": "TRC Workflow-API"
         }
       }

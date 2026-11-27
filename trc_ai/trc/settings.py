@@ -23,10 +23,12 @@ def load_tokens():
     options = json.loads(OPTIONS.read_text())
     admin = options.get("admin_token", "")
     workflow = options.get("workflow_token", "")
+    chat = options.get("chat_token", "")
     return (
         admin if isinstance(admin, str) and TOKEN_PATTERN.fullmatch(admin) else None,
         workflow if isinstance(workflow, str) and workflow != admin
         and TOKEN_PATTERN.fullmatch(workflow) else None,
+        chat if isinstance(chat, str) and chat not in (admin, workflow) and TOKEN_PATTERN.fullmatch(chat) else None,
     )
 
 

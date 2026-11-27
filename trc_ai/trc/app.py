@@ -1,4 +1,5 @@
-from asyncio import Semaphore
+from asyncio import Semaphore, gather
+import sqlite3
 from contextlib import asynccontextmanager
 from datetime import timezone
 from enum import StrEnum
@@ -24,8 +25,9 @@ from starlette.concurrency import run_in_threadpool
 from . import network, settings, storage
 from .rag import config as knowledge_config
 from .rag import http as knowledge_http
+from .intelligence import api as intelligence_http, store as intelligence_store
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 MAX_BODY = 512 * 1024
 STATIC = Path(__file__).parent / "static"
 logger = logging.getLogger(__name__)
@@ -94,7 +96,19 @@ async def lifespan(app):
     app.state.knowledge_config = knowledge_config.load()
     app.state.upload_limit = Semaphore(1)
     app.state.query_limit = Semaphore(1)
+    app.state.chat_tasks = {}
+    app.state.chat_partials = {}
+    try:
+        intelligence_store.initialize()
+        app.state.chat_ready = True
+    except (OSError, sqlite3.Error, RuntimeError):
+        logger.error("Chat-Speicher konnte nicht gestartet werden.")
+        app.state.chat_ready = False
     yield
+    tasks = list(app.state.chat_tasks.values())
+    for task in tasks:
+        task.cancel()
+    await gather(*tasks, return_exceptions=True)
 
 
 app = FastAPI(version=VERSION, lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None, redirect_slashes=False)
@@ -132,9 +146,9 @@ async def validation_error(request, exc):
 async def authorize(request, *roles):
     credentials: HTTPAuthorizationCredentials | None = await bearer(request)
     if credentials and settings.TOKEN_PATTERN.fullmatch(credentials.credentials):
-        for role, secret in zip(("admin", "workflow"), request.app.state.tokens, strict=True):
+        for role, secret in zip(("admin", "workflow", "chat"), request.app.state.tokens, strict=True):
             if role in roles and secret and hmac.compare_digest(credentials.credentials, secret):
-                return
+                return role
     raise ApiError(401, "unauthorized", "Ein gültiges Zugriffstoken ist erforderlich.")
 
 
@@ -170,6 +184,11 @@ def control_center():
 @app.get("/ui/app.js")
 def script():
     return FileResponse(STATIC / "app.js", media_type="text/javascript")
+
+
+@app.get("/ui/intelligence.js")
+def intelligence_script():
+    return FileResponse(STATIC / "intelligence.js", media_type="text/javascript")
 
 
 @app.get("/ui/style.css")
@@ -315,3 +334,5 @@ async def workflow_read(
 
 
 knowledge_http.install(app, authorize, read_model, require_database, ApiError)
+
+intelligence_http.install(app, authorize, read_model, require_database, ApiError)

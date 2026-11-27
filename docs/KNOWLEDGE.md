@@ -35,3 +35,5 @@ Ein stabiler relativer Pfad und SHA-256 identifizieren eine Dokumentversion. Bei
 **Qdrant-Index abgleichen** stellt fehlende Punkte aus PostgreSQL wieder her und entfernt veraltete Punkte. Der Abgleich läuft asynchron im gleichen Worker. Eine gestartete Verarbeitung wird beim Pausieren konsistent zu Ende geführt oder bei erzwungenem Abbruch über die zeitlich begrenzte Auftragslease erneut aufgenommen.
 
 [Ollama Embeddings](https://docs.ollama.com/api/embed) · [BGE-M3](https://huggingface.co/BAAI/bge-m3) · [Docling](https://docling-project.github.io/docling/) · [Docling Serve](https://github.com/docling-project/docling-serve)
+
+In TRC Intelligence kann ein Chat aus einem indexierten Dokument gestartet werden. Diese Unterhaltung begrenzt Wissensanfragen auf den ausgewählten Dokumentpfad. Private Chat-Anhänge werden ausschließlich im Chat verarbeitet. Dauerhafte Anhänge gehen nach bestätigter Auswahl in die vorhandene Indexierung.

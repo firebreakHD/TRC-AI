@@ -137,7 +137,7 @@ try {
           (Array.isArray(instance.description.version)?instance.description.version.includes(version):instance.description.version===version));
       }
       assert.ok(types.get(key)(n.typeVersion),n.type+'@'+n.typeVersion);
-      if(n.credentials?.httpHeaderAuth?.name==='TRC Workflow-API') n.credentials.httpHeaderAuth.id=credentialId;
+      if(n.credentials?.httpBearerAuth?.name==='TRC Workflow-API') n.credentials.httpBearerAuth.id=credentialId;
       if(['TRC Nextcloud Talk lesen','TRC Nextcloud WebDAV lesen'].includes(n.credentials?.httpBasicAuth?.name))
         n.credentials.httpBasicAuth.id=basicCredentialId;
     }
@@ -174,7 +174,7 @@ try {
     'return $input.all().map(i=>({json:{marker:"TRC_RUNTIME_CURSOR",key:i.json.key}}));')]);
   for(const f of [configure,change,ingest,badIngest,states,checkCursor]) {fixture(f);write(join(defs,f.id+'.json'),f);}
   const creds=join(temp,'credential.json');
-  write(creds,[{id:credentialId,name:'TRC Workflow-API',type:'httpHeaderAuth',data:{name:'Authorization',value:'Bearer '+token}},
+  write(creds,[{id:credentialId,name:'TRC Workflow-API',type:'httpBearerAuth',data:{token}},
     {id:basicCredentialId,name:'Nextcloud isoliert',type:'httpBasicAuth',data:{user:'Marcel',password:token}}]);
   await run('import:credentials','--input='+creds);
   const imported=await run('import:workflow','--separate','--input='+defs);

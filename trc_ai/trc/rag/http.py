@@ -94,9 +94,9 @@ def install(app, authorize, read_model, require_database, ApiError):
         await authorize(request, "admin")
         return await run_in_threadpool(status_data)
 
-    def listing(after):
+    def listing(after, q):
         with store() as repo:
-            rows = repo.list_documents(relative(after) if after else "")
+            rows = repo.list_documents(relative(after) if after else "", q)
             return {
                 "documents": rows[:100],
                 "next": rows[99]["path"] if len(rows) > 100 else None,
@@ -104,10 +104,11 @@ def install(app, authorize, read_model, require_database, ApiError):
 
     @app.get("/api/v1/knowledge/documents")
     async def documents(
-        request: Request, after: Annotated[str, Query(max_length=1500)] = ""
+        request: Request, after: Annotated[str, Query(max_length=1500)] = "",
+        q: Annotated[str, Query(max_length=150)] = ""
     ):
         await authorize(request, "admin")
-        return await run_in_threadpool(listing, after)
+        return await run_in_threadpool(listing, after, q)
 
     def accept(staging, name, digest, size, quota):
         with store() as repo:

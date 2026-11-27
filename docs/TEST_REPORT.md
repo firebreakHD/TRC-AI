@@ -50,3 +50,9 @@ Die Docker- und Chromium-Smokes verwenden ausschließlich Testdaten und kurzlebi
 Die dokumentierten Befehle unter Installation verwenden ausschließlich synthetische Testdaten. Benachrichtigungen und Produktionszugänge sind dafür nicht erforderlich.
 
 [Abnahmelauf in GitHub Actions](https://github.com/firebreakHD/TRC-AI/actions)
+
+## TRC Intelligence 0.3.0
+
+Die AMD64-Abnahme prüft den veröffentlichten Stand 0.2.0 als Upgrade-Quelle. Sie legt dort zuerst einen Bestandsdatensatz und einen bereits indexierten Beleg an. Der neue Stand prüft deren Erhalt, weiterhin funktionierende RAG-Suche und n8n-Import, Chatrollen, private und globale Anhänge, Streaming-Vertrag, Kontext, Abbruch, Archivierung, Löschung, Routing, kontrollierte Home-Assistant-Aktionen und Persistenz nach Neustart und kalter Rücksicherung. Chromium prüft Desktop und Smartphone, Drag-and-drop, Hell/Dunkel und einklappbare Administration. Der CI-Lauf veröffentlicht die visuellen Prüfaufnahmen.
+
+Ollama, Hermes-Fehlerzustände, Home Assistant und der n8n-Bericht-Webhook werden mit synthetischen Loopback-Fixtures geprüft. Die Live-Abnahme von 0.3.0 auf dem Fujitsu, echte Modellantworten und die installierten Integrationen bleiben separate Prüfungen.

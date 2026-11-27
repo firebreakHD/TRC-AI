@@ -127,7 +127,7 @@ const credentials={
   talk:cred('httpBasicAuth','TRC Nextcloud Talk lesen'), 'talk-write':cred('httpBasicAuth','TRC Nextcloud Talk schreiben'),
   home:cred('httpHeaderAuth','TRC Home Assistant lesen'), 'ha-write':cred('httpHeaderAuth','TRC Home Assistant Aktionen'),
   stocks:cred('httpQueryAuth','TRC Massive'), couch:cred('httpBasicAuth','TRC CouchDB lesen'),
-  trc:cred('httpHeaderAuth','TRC Workflow-API'), hermes:cred('httpHeaderAuth','TRC Hermes Gateway'), 'smtp-write':cred('smtp','TRC SMTP'),
+  trc:cred('httpBearerAuth','TRC Workflow-API'), hermes:cred('httpHeaderAuth','TRC Hermes Gateway'), 'smtp-write':cred('smtp','TRC SMTP'),
 };
 function http(w,name,{url=field('url'),method='GET',credential,format,customHeaders={},bodyType,body,sendBody=true,timeout=12000,pages,batchInterval=0}={}) {
   const params={method,url,options:{timeout,redirect:{redirect:{followRedirects:false}},

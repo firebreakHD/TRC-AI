@@ -71,3 +71,6 @@ configuration:
   rag_upload_quota_mib:
     name: Speichergrenze für Uploads
     description: Obergrenze in MiB für die private Dokumentablage.
+  chat_token:
+    name: Zugangstoken für den Chat
+    description: Eigenständiger zufälliger Schlüssel für den lokalen Chat ohne Administrationsrechte. Zum Aktivieren App neu starten.

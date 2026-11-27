@@ -1,5 +1,6 @@
 """Isolated, bounded document parser. The worker owns files and publication."""
 
+import fcntl
 import json
 import os
 import resource
@@ -33,4 +34,6 @@ def main():
 
 
 if __name__ == "__main__":
-    print(json.dumps(main(), ensure_ascii=False))
+    with open("/data/config/.document-parser.lock", "a", encoding="utf-8") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        print(json.dumps(main(), ensure_ascii=False))

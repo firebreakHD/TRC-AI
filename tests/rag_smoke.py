@@ -105,7 +105,7 @@ if sys.argv[1] == "fresh":
     call("PUT", "knowledge/documents/leer.txt", b"", status=422)
     assert call("GET", "knowledge/status")["jobs"]["pending"] >= 8
     assert not call("PUT", "knowledge/worker", {"paused": False})["paused"]
-    wait_indexed(9)
+    wait_indexed(9 + int(os.environ.get("TRC_TEST_CHAT_GLOBAL","0")) + int(os.environ.get("TRC_TEST_UPGRADE_SEEDED","0")))
     for term, name, kind in (
         ("KUPFERKOMET", "wissen.md", None),
         ("DELTAPRUEFUNG", "digital.pdf", "text"),
@@ -119,6 +119,8 @@ if sys.argv[1] == "fresh":
     ):
         query(term, "upload/" + name, kind)
     query("LOKALSPEICHER", "local/vault.md")
+    if os.environ.get("TRC_TEST_UPGRADE_SEEDED"):
+        query("ALTBELEG", "upload/altbeleg.md")
     ranked = call("POST", "knowledge/query", {"question": "Kennung"})
     assert ranked["reranking"] == "lexical_cpu" and len(ranked["sources"]) >= 2, ranked
     query("KUPFERKOMET", "upload/wissen.md", answer=True)
@@ -128,7 +130,7 @@ if sys.argv[1] == "fresh":
         b"# Messhalle\n\nNeue Kennung BLAUKOMET.\n",
         status=202,
     )["queued"]
-    wait_indexed(9)
+    wait_indexed(9 + int(os.environ.get("TRC_TEST_CHAT_GLOBAL","0")) + int(os.environ.get("TRC_TEST_UPGRADE_SEEDED","0")))
     query("BLAUKOMET", "upload/wissen.md")
     previous = call(
         "POST",
@@ -153,8 +155,10 @@ if sys.argv[1] == "fresh":
         "Dokumente, native OCR und Docling, Deduplizierung, Update, Suche, Quellen, Modellfehler und getrennte API-Rollen geprüft."
     )
 else:
-    wait_indexed(9)
+    wait_indexed(9 + int(os.environ.get("TRC_TEST_CHAT_GLOBAL","0")) + int(os.environ.get("TRC_TEST_UPGRADE_SEEDED","0")))
     query("LOKALSPEICHER", "local/vault.md")
+    if os.environ.get("TRC_TEST_UPGRADE_SEEDED"):
+        query("ALTBELEG", "upload/altbeleg.md")
     query("BLAUKOMET", "upload/wissen.md", answer=True)
     print(
         "Wissensdatenbank und modellgestützte Antwort nach Neustart oder Rücksicherung geprüft."
