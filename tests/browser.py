@@ -39,7 +39,7 @@ with sync_playwright() as playwright:
         assert page.locator("#administration").evaluate("(node) => !node.open")
         page.locator("#chat-profile").select_option("jarvis")
         page.locator("#chat-mode").select_option("documents")
-        transfer = page.evaluate_handle("""() => {
+        transfer = page.evaluate_handle(r"""() => {
             const t = new DataTransfer();
             t.items.add(new File(["# Probe\n\nBROWSERKOMET ist der Testbeleg."], "browser.md"));
             return t;
