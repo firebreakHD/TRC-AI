@@ -1,8 +1,17 @@
 # Änderungsverlauf
 
-## 0.1.0
+## 0.3.1
 
-- amd64-Entwicklungsgrundlage für HAOS mit Control Center und separaten Administrations- und Workflow-Tokens.
-- PostgreSQL 18 über einen lokalen Socket, versionierte Migration und persistentes Datenverzeichnis. Qdrant 1.18.0 ist ausschließlich über Loopback erreichbar.
-- Versionierte Status- und Workflow-Import-API mit transaktionaler Deduplizierung, Konflikterkennung und OpenAPI-Vertrag.
-- Tests für Build, Start, Neustart, Persistenz und kalte Rücksicherung beider Datenbanken im Docker-Container.
+- Überarbeitete Chat-Oberfläche mit einer Werkzeugleiste für Verlauf und neue Chats.
+- Mobiler Verlauf mit Wischgeste, abgedunkeltem Hintergrund und kompakter Verwaltung.
+- Gemeinsame Auswahl für Assistent und Anfrage-Modus sowie ein klarer Einstieg vom Dokument zum Chat.
+
+## 0.3.0
+
+- TRC Intelligence mit Chatverlauf, Bedienung auf Mobilgeräten, Quellen und integrierter Administration.
+- Auswahl von JARVIS, FRIDAY und allgemeinem Assistenten. Getrenntes Chat-Token.
+- Kontrolliertes Routing für Ollama, Wissensdatenbank, strukturierte Importdaten, Home Assistant und optionale n8n-/Hermes-Aufrufe.
+- Private Chat-Anhänge und gezielt dauerhaft indexierte Dokumente.
+- Native Bearer-Authentifizierung für neue n8n-Workflow-Vorlagen.
+
+[Frühere Add-on-Stände](trc_ai/CHANGELOG.md)

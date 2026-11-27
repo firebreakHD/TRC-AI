@@ -12,13 +12,14 @@ class IdempotencyConflict(Exception):
     pass
 
 
-def connect():
+def connect(**kwargs):
     return psycopg.connect(
         host="/run/postgresql",
         dbname="trc",
         user="trc",
         connect_timeout=2,
         options="-c statement_timeout=4000 -c lock_timeout=2000",
+        **kwargs,
     )
 
 
@@ -98,3 +99,54 @@ def ingest(area, key, batch):
             (Jsonb(result), key),
         )
         return result
+
+
+def list_records(area, source, cursor, limit):
+    import base64
+    from datetime import datetime
+
+    try:
+        boundary = None
+        if cursor:
+            parts = json.loads(base64.b64decode(cursor, altchars=b"-_", validate=True))
+            if not isinstance(parts, list) or len(parts) != 3 or not all(isinstance(item, str) for item in parts):
+                raise ValueError
+            boundary = (datetime.fromisoformat(parts[0]), parts[1], parts[2])
+            if boundary[0].utcoffset() is None or not 1 <= len(parts[1]) <= 64 or not 1 <= len(parts[2]) <= 256:
+                raise ValueError
+    except (ValueError, TypeError, OverflowError) as error:
+        raise ValueError("invalid_cursor") from error
+
+    filters = ["area=%s"]
+    params = [area]
+    if source:
+        filters.append("source=%s")
+        params.append(source)
+    if boundary:
+        filters.append("(observed_at,source,external_id) < (%s,%s,%s)")
+        params.extend(boundary)
+
+    # Stream large stored payloads and keep each page under approximately 1 MiB.
+    rows = []
+    encoded_bytes = 0
+    next_cursor = None
+    with connect() as conn, conn.cursor(name="trc_read_records") as result:
+        result.itersize = 4
+        result.execute(
+            "SELECT source,external_id,observed_at,payload FROM workflow_records WHERE "
+            + " AND ".join(filters) + " ORDER BY observed_at DESC,source DESC,external_id DESC LIMIT %s",
+            [*params, limit + 1],
+        )
+        for row in result:
+            source_id, external_id, observed, payload = row
+            record = {"source": source_id, "external_id": external_id,
+                      "observed_at": observed.isoformat(), "payload": payload}
+            size = len(json.dumps(record, ensure_ascii=False).encode())
+            if len(rows) >= limit or rows and encoded_bytes + size > 1024**2:
+                last = rows[-1]
+                value = [last["observed_at"], last["source"], last["external_id"]]
+                next_cursor = base64.urlsafe_b64encode(json.dumps(value).encode()).decode()
+                break
+            rows.append(record)
+            encoded_bytes += size
+    return {"records": rows, "next": next_cursor}

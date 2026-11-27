@@ -1,5 +1,27 @@
 # Änderungsverlauf
 
+## 0.3.1
+
+- Überarbeitete Chat-Oberfläche mit einer Werkzeugleiste für Verlauf und neue Chats.
+- Mobiler Verlauf mit Wischgeste, abgedunkeltem Hintergrund und kompakter Verwaltung.
+- Gemeinsame Auswahl für Assistent und Anfrage-Modus sowie ein klarer Einstieg vom Dokument zum Chat.
+
+## 0.3.0
+
+- Chat, Assistentenprofile, Dokumentanhänge und kontrolliertes Anfrage-Routing.
+- Integrierte Administration mit getrenntem Chat-Zugang.
+- Kompatible Workflow-API und fortbestehende Wissensdatenbank.
+
+## 0.2.0
+
+- Dokumentverarbeitung mit OCR, Word-Struktur über Docling, Excel-Normalisierung, segmentierten Quellen und persistenter Warteschlange.
+- Hybride Wissenssuche, Quellenreferenzen, Qdrant-Abgleich und optionale Antworten mit vorhandenen Modellen.
+- Kompatible n8n-Import-API mit zusätzlichem Admin-Lesepfad. Korrekte Wiener ISO-Daten im n8n-Generator.
+
+- Native Optionen für getrennte interne und öffentliche Adressen, Proxy-Vertrauen, CA und Timeout.
+- Control Center mit persistenten Dienstprofilen und lesenden Verbindungstests.
+- Dokumentierte lokale, VPN-, Ingress- und HTTPS-Proxy-Betriebsarten.
+
 ## 0.1.0
 
 - amd64-Entwicklungsgrundlage für HAOS mit Control Center und separaten Administrations- und Workflow-Tokens.

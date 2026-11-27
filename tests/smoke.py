@@ -13,6 +13,8 @@ WORKFLOW = os.environ["TRC_TEST_WORKFLOW"]
 INGEST = "/api/v1/workflow/records/tasks"
 STATUS = "/api/v1/system/status"
 PREFS = "/api/v1/admin/preferences"
+NETWORK = "/api/v1/admin/network"
+PROFILE = NETWORK + "/services/fixture"
 FIRST = "ea42bc23-cca2-4eff-a90b-80bcf8b1703f"
 TASK = json.loads(Path("contracts/examples/tasks.json").read_text())
 
@@ -45,20 +47,31 @@ def send(body, key=None):
 assert request("GET", "/healthz") == (200, {"status": "ok"})
 code, status = request("GET", STATUS, WORKFLOW)
 assert code == 200 and status["postgresql"]["version"].startswith("18."), (code, status)
-assert status["qdrant"] == {"available": True, "version": "1.18.0", "collections": 1}
+assert status["qdrant"]["available"] and status["qdrant"]["version"] == "1.18.0"
+assert status["qdrant"]["collections"] >= 1
 assert request("GET", STATUS)[0] == 401
 assert request("GET", PREFS, WORKFLOW)[0] == 401
+assert request("GET", NETWORK, WORKFLOW)[0] == 401
+assert request("GET", NETWORK, ADMIN)[1]["connection"]["trusted_proxy"] is False
+assert request("POST", PROFILE + "/test", ADMIN)[0] == 422
 assert request("POST", INGEST, ADMIN, TASK, FIRST)[0] == 401
-assert b"TRC Control Center" in request("GET", "/")[1]
+assert b"TRC Intelligence" in request("GET", "/")[1]
 assert b"Authorization" in request("GET", "/ui/app.js")[1]
 assert send(TASK, FIRST) == (200, {"applied": 1, "unchanged": 0})
 
 if sys.argv[1] == "persisted":
     assert request("GET", PREFS, ADMIN)[1]["values"]["refresh_seconds"] == 25
+    profile = next(row for row in request("GET", NETWORK, ADMIN)[1]["services"] if row["key"] == "fixture")
+    assert profile["has_credential"] is True and profile["public_url"] == "https://after.example.invalid"
+    assert "secret" not in profile
     assert send(TASK)[1] == {"applied": 0, "unchanged": 1}
     print("Status, HTTP-Frontend, Rollen, Konfiguration und Importpersistenz geprüft.")
     sys.exit()
 
+assert request("PUT", PROFILE, ADMIN, {"public_url": "https://before.example.invalid",
+    "auth_mode": "bearer", "secret": "isolated-backup-fixture"})[1]["has_credential"] is True
+assert request("PUT", PROFILE, ADMIN, {"public_url": "https://after.example.invalid",
+    "auth_mode": "bearer"})[1]["has_credential"] is True
 assert send(TASK, FIRST) == (200, {"applied": 1, "unchanged": 0})
 assert send(TASK) == (200, {"applied": 0, "unchanged": 1})
 assert send(TASK, "invalid")[1]["error"]["code"] == "invalid_idempotency_key"

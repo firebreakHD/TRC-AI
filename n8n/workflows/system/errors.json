@@ -1,0 +1,158 @@
+{
+  "id": "32d8e549dff68b66",
+  "name": "TRC · Ausführungsfehler protokollieren",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Vienna",
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveExecutionProgress": false,
+    "saveManualExecutions": false,
+    "executionTimeout": 420,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "380a6ff18b05e1b1",
+      "name": "Ausführungsfehler",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "/* Shared functions embedded in n8n Code nodes by scripts/build.mjs. */\nconst crypto = require('crypto');\nconst {URL} = require(\"url\");\nconst AREAS = new Set(['emails', 'calendar', 'tasks', 'messenger', 'market-prices', 'news', 'research', 'reports', 'notifications']);\nconst TZ = 'Europe/Vienna';\nconst OUT = values => values.map(json => ({json}));\nconst objects = items => items.map(item => item.json);\nconst list = value => value == null ? [] : Array.isArray(value) ? value : [value];\nconst str = (value, limit = 300) => String(value ?? '').slice(0, limit);\nconst date = value => {\n  if (typeof value === 'string' && /^\\d{4}-\\d\\d-\\d\\d$/.test(value)) value += 'T00:00:00Z';\n  if (typeof value === \"string\" && !/(?:Z|[+-]\\d\\d:\\d\\d|GMT|UTC)$/i.test(value)) {\n    if (/^\\d{4}-\\d\\d-\\d\\dT/.test(value)) return null;\n  }\n  const t = new Date(value);\n  return value != null && Number.isFinite(t.getTime()) ? t.toISOString() : null;\n};\nconst earlier = (t, ms) => new Date(Date.parse(t) - ms).toISOString();\nconst now = () => new Date().toISOString();\nconst viennaDate = new Intl.DateTimeFormat('en-CA', {\n  timeZone:TZ, calendar:'gregory', numberingSystem:'latn', year:'numeric', month:'2-digit', day:'2-digit'\n});\nconst localDay = value => {\n  const fields = Object.fromEntries(viennaDate.formatToParts(new Date(value)).map(({type,value}) => [type,value]));\n  return fields.year.padStart(4,'0') + '-' + fields.month + '-' + fields.day;\n};\nconst sha = value => crypto.createHash('sha256').update(value).digest('hex');\nfunction uuid(content) {\n  const h = sha(content);\n  return h.slice(0,8)+'-'+h.slice(8,12)+'-5'+h.slice(13,16)+'-8'+h.slice(17,20)+'-'+h.slice(20,32);\n}\nconst iso = (value, fallback) => date(value) || fallback;\nconst cleanId = value => {\n  const id = String(value ?? '');\n  if (!id || /[\\u0000-\\u001f]/u.test(id)) throw Error('Ungültige externe ID');\n  return id.length <= 256 ? id : sha(id);\n};\nconst sourceId = (key, config) => {\n  const name = (config.source || key).toLowerCase();\n  if (!/^[a-z0-9][a-z0-9._-]{0,63}$/.test(name)) throw Error('Ungültige Quellkennung');\n  return name;\n};\nconst bytes = value => Buffer.byteLength(value, 'utf8');\nconst parse = (value, defaultValue = {}) => typeof value === 'string' && value.length ? JSON.parse(value) : value ?? defaultValue;\nconst escaped = value => str(value, 10000).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));\nconst validText = (s, max = 500) => typeof s === 'string' && s.length > 0 && s.length <= max && !/[\\r\\n\\0]/.test(s);\nconst part = value => encodeURIComponent(String(value));\nconst limits = (v, fallback, max) => {\n  if (v == null) return fallback;\n  if (!Number.isInteger(v) || v < 1 || v > max) throw Error('Ungültiges Limit');\n  return v;\n};\nfunction baseUrl(s, external = false) {\n  if (typeof s !== 'string') throw Error('Dienstadresse fehlt');\n  const u = new URL(s);\n  if ((external ? u.protocol !== 'https:' : !['https:','http:'].includes(u.protocol)) || u.username || u.password || u.search || u.hash)\n    throw Error('Ungültige Dienstadresse');\n  return u.toString().replace(/\\/+$/, '');\n}\nconst q = (url, fields) => {\n  const u = new URL(url);\n  for (const [key, value] of Object.entries(fields)) if (value !== '' && value != null) {\n    for (const item of list(value)) u.searchParams.append(key, String(item));\n  }\n  return u.toString();\n};\nconst normalized = (area, source, externalId, updated, payload, fetched = now()) => {\n  if (!AREAS.has(area)) throw Error('Unbekannter Datenbereich');\n  return {key:sha(area+'\\n'+source+'\\n'+cleanId(externalId)),area,source,external_id:cleanId(externalId),\n          observed_at:iso(updated,fetched),payload};\n};\nfunction batches(records, t = now()) {\n  const groups = new Map();\n  for (const record of records) {\n    if (!AREAS.has(record.area)) throw Error('Unbekannter Importbereich');\n    const key = record.area+'\\n'+record.source;\n    if (!groups.has(key)) groups.set(key, new Map());\n    const unique = groups.get(key);\n    const old = unique.get(record.external_id);\n    if (!old || record.observed_at > old.observed_at) unique.set(record.external_id, record);\n  }\n  const out = [];\n  for (const [group, unique] of groups) {\n    const [area, source] = group.split('\\n');\n    let buffer = [];\n    function emit() {\n      const body = JSON.stringify({source, records:buffer});\n      const key = uuid(area+'\\n'+body);\n      out.push({key,area,source,body,status:'pending',attempts:0,next_at:t,finished_at:'',error:''});\n      buffer = [];\n    }\n    for (const {external_id, observed_at, payload} of unique.values()) {\n      const row = {external_id,observed_at,payload};\n      if (bytes(JSON.stringify({source,records:[row]})) > 512*1024) throw Error('Einzelner Datensatz überschreitet 512 KiB');\n      if (buffer.length === 100 || bytes(JSON.stringify({source,records:[...buffer,row]})) > 512*1024) emit();\n      buffer.push(row);\n    }\n    if (buffer.length) emit();\n  }\n  return out;\n}\nfunction retry(row, statusCode, retryAfter, t = now(), maxAttempts = 4) {\n  const attempts = Number(row.attempts) + 1;\n  let status = 'dead';\n  let next_at = '';\n  let finished_at = t;\n  let error = statusCode ? 'http_'+statusCode : 'transport';\n  if (statusCode >= 200 && statusCode < 300) {\n    status = 'sent';\n    error = '';\n  } else if ((!statusCode || [408,425,429].includes(statusCode) || (statusCode >= 500 && statusCode <= 599))\n             && attempts < maxAttempts) {\n    status = 'pending';\n    const seconds = /^\\d+$/.test(String(retryAfter ?? '')) ? Number(retryAfter) :\n      Math.max(0, (Date.parse(retryAfter) - Date.parse(t))/1000 || 0);\n    const ms = Math.max([5,15,45,180,600][Math.min(attempts-1,4)]*1000, Math.min(seconds,86400)*1000);\n    next_at = new Date(Date.parse(t)+ms).toISOString();\n    finished_at = '';\n  }\n  return {id:row.id,key:row.key,status,attempts,next_at,finished_at,error};\n}\nfunction httpResult(item) {\n  const data = item?.json || {};\n  const code = Number(data.statusCode) || 0;\n  return {code, headers:data.headers || {}, body:Object.hasOwn(data,'body')?data.body:data.data};\n}\nfunction configFrom(row, key, manual = {}) {\n  if (row.key !== key) return null;\n  const config = parse(row.value_json);\n  if (config.enabled !== true) return null;\n  return {...config, source:sourceId(key, config), manual};\n}\nfunction assertOk(result, service, allowed = []) {\n  if (result.code < 200 || result.code >= 300) {\n    if (!allowed.includes(result.code)) throw Error(service+' HTTP '+(result.code || 'Transportfehler'));\n  }\n}\nfunction csv(text) {\n  const rows = [];\n  let row = [], field = '', quoted = false;\n  for (let i=0; i<text.length; i++) {\n    const ch = text[i];\n    if (quoted && ch === '\"' && text[i+1] === '\"') {field += '\"'; i++;}\n    else if (ch === '\"') quoted = !quoted;\n    else if (ch === ',' && !quoted) {row.push(field); field = '';}\n    else if (ch === '\\n' && !quoted) {row.push(field.replace(/\\r$/,'')); rows.push(row); row=[]; field='';}\n    else field += ch;\n  }\n  if (quoted) throw Error('CSV-Feld nicht geschlossen');\n  if (field || row.length) rows.push([...row,field.replace(/\\r$/,'')]);\n  const head = rows.shift() || [];\n  return rows.filter(row => row.length===head.length).map(row => Object.fromEntries(row.map((value,i)=>[head[i],value])));\n}\nfunction pathSegments(path) {\n  const parts = String(path).split('/').filter(Boolean);\n  if (!parts.length || parts.length > 20 || parts.some(p=>!validText(p,200)||p==='.'||p==='..'||p.includes('\\\\')||p.includes('%')))\n    throw Error('Ungültiger Datei- oder Ordnerpfad');\n  return parts.map(part).join('/');\n}\n\n\nconst e=$input.first().json; const name=str(e.workflow?.name,160); const identifier=str(e.execution?.id,120);const lastNode=str(e.execution?.lastNodeExecuted,160); return OUT([{key:sha(name+\"\\n\"+(identifier||now())),source:name,status:\"error\",seen_at:now(),details_json:JSON.stringify({workflow:name,execution:identifier,lastNode})}]);"
+      },
+      "id": "c9deefafd17990e1",
+      "name": "Fehler begrenzen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "trc_events"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "key",
+              "condition": "eq",
+              "keyValue": "={{ $json.key }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "key": "={{ $json.key }}",
+            "source": "={{ $json.source }}",
+            "status": "={{ $json.status }}",
+            "seen_at": "={{ $json.seen_at }}",
+            "details_json": "={{ $json.details_json }}"
+          },
+          "schema": [
+            {
+              "id": "key",
+              "displayName": "key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seen_at",
+              "displayName": "seen_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "details_json",
+              "displayName": "details_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "9fe6bf9f8a9dd2a3",
+      "name": "Fehler ablegen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Ausführungsfehler": {
+      "main": [
+        [
+          {
+            "node": "Fehler begrenzen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fehler begrenzen": {
+      "main": [
+        [
+          {
+            "node": "Fehler ablegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "tags": [],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

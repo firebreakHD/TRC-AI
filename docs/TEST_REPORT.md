@@ -18,3 +18,41 @@ Die Inventur führte außerdem 10 Tests des bestehenden JARVIS-Repos, 3 statisch
 ## Ausstehende Abnahme
 
 HAOS-Live-Tests stehen aus. Dazu gehören Installation durch Supervisor, Ingress, Upgrade-Migration, Rücksicherung des Supervisor-Backups und die Zielhardware-Messung. Dokumentenindexierung, OCR und Office-Verarbeitung, der unabhängige TRC-Chat und sein Betrieb bei gestopptem Add-on, Ollama, Hermes, MCP, produktive n8n-Workflows, Sprachdienste und Telefonie sind in der Zielumgebung offen.
+
+## Netzwerkeinstellungen und Control Center 0.2.0
+
+| Szenario | Ergebnis im isolierten Test |
+| --- | --- |
+| LAN ohne öffentliche Domain | Docker-Hostport und direkter Zugriff geprüft. |
+| Home Assistant Ingress | Relativer UI-/API-Pfad hinter simuliertem Ingress-Präfix geprüft. Home Assistant Supervisor vor Ort offen. |
+| HTTPS hinter Proxy und eigener Hostname | Lokaler HTTPS-Reverse-Proxy mit Test-CA und getrennten Test-Hostnamen geprüft. Öffentliche DNS-/ACME-Validierung offen. |
+| Domain, interne Adresse und Port ändern | Geänderte Basisadresse mit Add-on-Neustart und persistente Dienstprofile geprüft. Zwei TCP-Ports in der lokalen Testumgebung geprüft. |
+| Daten und Einstellungen nach Neustart und Rücksicherung | PostgreSQL-Belege, Qdrant, Präferenzen sowie maskierte Integrations-Credentials im neuen Docker-Volume geprüft. |
+| Fehlerhafte Dienstadresse oder Zertifikat | Authentifizierter lokaler Dienst, nicht erreichbarer Port, Redirect-Abwehr, unbekannte CA und falscher Zertifikatsname geprüft. |
+| Nicht vertrauenswürdige Forwarded-Header | Middleware mit vertrauenswürdigem und unberechtigtem Peer geprüft, ebenso Header-Überschreibung im HTTPS-Testproxy. |
+| Editor, OAuth, Webhooks, WebSockets und SSE von n8n | Separate n8n-Abnahme in dessen Paket. Freigaben des tatsächlichen Google-Projekts und HAOS-Proxy-Abnahme vor Ort offen. |
+
+Die Docker- und Chromium-Smokes verwenden ausschließlich Testdaten und kurzlebige Volumes. Das Netzwerkprofil wurde auf Desktop- und Mobilansicht getestet.
+
+## Integriertes Backend 0.2.0
+
+| Bereich | Nachweis |
+| --- | --- |
+| Container und Migration | amd64-Build mit PostgreSQL und Qdrant. Der CI-Smoke baut zusätzlich v0.1.0, schreibt einen synthetischen Bestandsdatensatz und prüft dessen Erhalt nach Migration. |
+| Dokumente | Acht synthetische Uploads in Markdown, TXT, Digital-PDF, Scan-PDF, DOCX, XLSX, CSV und PNG. Word-Absatz und Docling-Tabelle, Excel-Tabelle und OCR-Belege werden abgefragt. Ein zusätzlicher Vault-Watcher-Fall prüft die Beibehaltung indexierter Quellen bei fehlendem Ordner. |
+| Suche | Dauerhafte Chunks, Qdrant-Vektoren, Quellen und Ersatz einer Version. Lokales Reranking, leere Treffer und Fallback bei Modellfehler. Ollama-Protokoll im Backend-Test mit isolierten 1024-dimensionalen Vektoren und synthetischer Antwort. |
+| Kompatibilität | Bestehendes n8n-Status- und Schreibformat, Replay, Konflikt, Admin-Lesen, Pagination und getrennte Rollen im Smoke. Generator und 53 n8n-Exporte werden separat geprüft. |
+| Betrieb | Chromium Desktop/Mobil, HTTPS-Proxy mit simulierter Ingress-Route, PostgreSQL-Wiederanlauf, kaltes Archiv mit neuem Volume. Der Smoke fordert nach Entfernen der Testprojektion den Indexabgleich über die API an. |
+| Sicherheit | Begrenztes Format und Upload, Ressourcenlimits, Ausschluss ungültiger Namen, TLS-Prüfung, Hashbindung. Python-Abhängigkeitsprüfung ohne bekannte Treffer im geprüften Lockfile. |
+| Tatsächliche Modelle | Die WDB-RAG-Referenz v1.1.0 protokolliert echte BGE-M3-Vektoren mit 1024 Dimensionen und einen CPU-ONNX-Reranker. Die Add-on-Prüfung benutzt eine Protokoll-Fixture. OpenAI-kompatible externe Dienste und das installierte Ollama des Zielsystems sind gesondert zu testen. |
+| Vor Ort offen | Installation über den echten HAOS-Supervisor, vorhandenes Ollama, Zielhardware unter gleichzeitiger Last und HAOS-Wiederherstellungsdialog. |
+
+Die dokumentierten Befehle unter Installation verwenden ausschließlich synthetische Testdaten. Benachrichtigungen und Produktionszugänge sind dafür nicht erforderlich.
+
+[Abnahmelauf in GitHub Actions](https://github.com/firebreakHD/TRC-AI/actions)
+
+## TRC Intelligence 0.3.0
+
+Die AMD64-Abnahme prüft den veröffentlichten Stand 0.2.0 als Upgrade-Quelle. Sie legt dort zuerst einen Bestandsdatensatz und einen bereits indexierten Beleg an. Der neue Stand prüft deren Erhalt, weiterhin funktionierende RAG-Suche und n8n-Import, Chatrollen, private und globale Anhänge, Streaming-Vertrag, Kontext, Abbruch, Archivierung, Löschung, Routing, kontrollierte Home-Assistant-Aktionen und Persistenz nach Neustart und kalter Rücksicherung. Chromium prüft Desktop und Smartphone, Drag-and-drop, Hell/Dunkel und einklappbare Administration. Der CI-Lauf veröffentlicht die visuellen Prüfaufnahmen.
+
+Ollama, Hermes-Fehlerzustände, Home Assistant und der n8n-Bericht-Webhook werden mit synthetischen Loopback-Fixtures geprüft. Die Live-Abnahme von 0.3.0 auf dem Fujitsu, echte Modellantworten und die installierten Integrationen bleiben separate Prüfungen.

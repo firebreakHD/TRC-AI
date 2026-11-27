@@ -1,0 +1,43 @@
+name: n8n automation
+on:
+  pull_request:
+    paths:
+      - 'n8n/**'
+      - '.github/workflows/n8n.yml'
+  push:
+    paths:
+      - 'n8n/**'
+      - '.github/workflows/n8n.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  n8n:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate exports and unit tests
+        run: |
+          node n8n/tests/validate.mjs
+          node --test n8n/tests/unit.mjs
+      - name: Install the pinned n8n runtime
+        run: npm install --prefix "$RUNNER_TEMP/trc-n8n" --no-audit --no-fund n8n@2.49.7
+      - name: Import and exercise an isolated n8n profile
+        run: TRC_N8N_BIN="$RUNNER_TEMP/trc-n8n/node_modules/.bin/n8n" node n8n/tests/runtime.mjs
+      - name: Package the validated workflows
+        run: |
+          git archive --format=zip --output=TRC-AI-n8n-Workflows.zip HEAD n8n
+          unzip -tq TRC-AI-n8n-Workflows.zip
+          sha256sum TRC-AI-n8n-Workflows.zip > TRC-AI-n8n-Workflows.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TRC-AI-n8n-Workflows
+          path: |
+            TRC-AI-n8n-Workflows.zip
+            TRC-AI-n8n-Workflows.sha256

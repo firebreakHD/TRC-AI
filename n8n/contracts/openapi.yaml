@@ -1,0 +1,181 @@
+openapi: 3.1.0
+info:
+  title: TRC-AI Workflow API
+  version: 0.1.0
+  description: Vertrag für Hintergrundimporte und Statusabfragen durch n8n.
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /system/status:
+    get:
+      operationId: getSystemStatus
+      summary: Dienst- und Ressourcenstatus abrufen
+      responses:
+        '200':
+          description: PostgreSQL erreichbar
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /workflow/records/{area}:
+    post:
+      operationId: importWorkflowRecords
+      summary: Daten eines Workflows idempotent übernehmen
+      description: Erfordert das Workflow-Token. Der vollständige JSON-Body ist auf 512 KiB begrenzt.
+      parameters:
+        - name: area
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [emails, calendar, tasks, messenger, market-prices, news, research, reports, notifications]
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Batch'
+            examples:
+              tasks:
+                externalValue: ./examples/tasks.json
+      responses:
+        '200':
+          description: Anzahl angewendeter und unveränderter Datensätze im ursprünglichen Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/ClientError'
+        '413':
+          $ref: '#/components/responses/ClientError'
+        '415':
+          $ref: '#/components/responses/ClientError'
+        '422':
+          $ref: '#/components/responses/ClientError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Batch:
+      type: object
+      required: [source, records]
+      additionalProperties: false
+      properties:
+        source:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: '^[a-z0-9][a-z0-9._-]*$'
+        records:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: Jede externe ID darf innerhalb eines Batches einmal vorkommen.
+          items:
+            $ref: '#/components/schemas/Record'
+    Record:
+      type: object
+      required: [external_id, observed_at, payload]
+      additionalProperties: false
+      properties:
+        external_id:
+          type: string
+          minLength: 1
+          maxLength: 256
+          pattern: '^[^\u0000-\u001f]+$'
+        observed_at:
+          type: string
+          format: date-time
+          description: Version des Quellstands, als RFC-3339-Zeitstempel mit Zeitzone.
+        payload:
+          type: object
+          additionalProperties: true
+    ImportResult:
+      type: object
+      required: [applied, unchanged]
+      properties:
+        applied: {type: integer, minimum: 0}
+        unchanged: {type: integer, minimum: 0}
+    SystemStatus:
+      type: object
+      required: [status, version, postgresql, resources, qdrant]
+      properties:
+        status: {type: string, const: ok}
+        version: {type: string}
+        postgresql:
+          type: object
+          required: [version, database_bytes]
+          properties:
+            version: {type: string}
+            database_bytes: {type: integer, minimum: 0}
+        qdrant:
+          type: object
+          required: [available]
+          properties:
+            available: {type: boolean}
+            version: {type: string}
+            collections: {type: integer, minimum: 0}
+        resources:
+          type: object
+          required: [visible_cpu_count, system_load_1m, system_memory_total_bytes, system_memory_available_bytes, data_disk_total_bytes, data_disk_free_bytes]
+          properties:
+            visible_cpu_count: {type: integer, minimum: 1}
+            system_load_1m: {type: number, minimum: 0}
+            system_memory_total_bytes: {type: integer, minimum: 0}
+            system_memory_available_bytes: {type: integer, minimum: 0}
+            data_disk_total_bytes: {type: integer, minimum: 0}
+            data_disk_free_bytes: {type: integer, minimum: 0}
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: {type: string}
+            message: {type: string}
+  responses:
+    ClientError:
+      description: Die Anfrage kann nicht unverändert wiederholt werden.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Token fehlt, ist ungültig oder für diesen Pfad ungeeignet.
+      headers:
+        WWW-Authenticate:
+          schema: {type: string}
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unavailable:
+      description: Die Datenbank ist vorübergehend nicht verfügbar.
+      headers:
+        Retry-After:
+          schema: {type: integer, minimum: 1}
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

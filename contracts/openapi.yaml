@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: TRC-AI Workflow API
-  version: 0.1.0
-  description: Vertrag für Hintergrundimporte und Statusabfragen durch n8n.
+  title: TRC-AI Backend API
+  version: 0.3.1
+  description: Vertrag für Hintergrundimporte, Statusabfragen und administrative Netzwerkeinstellungen.
 servers:
   - url: /api/v1
 security:
@@ -24,6 +24,41 @@ paths:
         '503':
           $ref: '#/components/responses/Unavailable'
   /workflow/records/{area}:
+    get:
+      operationId: listWorkflowRecords
+      summary: Importierte strukturierte Datensätze lesen
+      description: Erfordert das Admin-Token. Der Cursor wird aus der vorherigen Seite übernommen.
+      parameters:
+        - {name: area, in: path, required: true, schema: {type: string, enum: [emails, calendar, tasks, messenger, market-prices, news, research, reports, notifications]}}
+        - {name: source, in: query, schema: {type: string, maxLength: 64}}
+        - {name: cursor, in: query, schema: {type: string, maxLength: 2200}}
+        - {name: limit, in: query, schema: {type: integer, default: 25, minimum: 1, maximum: 50}}
+      responses:
+        '200':
+          description: Datensätze und Cursor für die nächste Seite
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [records, next]
+                properties:
+                  records:
+                    type: array
+                    items:
+                      type: object
+                      required: [source, external_id, observed_at, payload]
+                      properties:
+                        source: {type: string}
+                        external_id: {type: string}
+                        observed_at: {type: string, format: date-time}
+                        payload: {type: object}
+                  next: {type: [string, 'null']}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ClientError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
     post:
       operationId: importWorkflowRecords
       summary: Daten eines Workflows idempotent übernehmen
@@ -69,12 +104,393 @@ paths:
           $ref: '#/components/responses/ClientError'
         '503':
           $ref: '#/components/responses/Unavailable'
+  /admin/network:
+    get:
+      operationId: getNetworkSettings
+      summary: Startoptionen, Verbindungsinformationen und Dienste lesen
+      description: Erfordert das Admin-Token. Liefert Zugangsdaten ausschließlich als Vorhandenseinsindikator.
+      responses:
+        '200':
+          description: Startoptionen, Kontext und Dienste
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [startup, connection, effect, services]
+                properties:
+                  startup: {type: object}
+                  connection: {type: object}
+                  effect: {type: object}
+                  services:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/IntegrationStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /admin/network/services/{service}:
+    parameters:
+      - $ref: '#/components/parameters/Service'
+    put:
+      operationId: updateNetworkService
+      summary: Einstellungen eines Dienstes speichern
+      description: Erfordert das Admin-Token. Bei der Dienstkennung trc werden Adressen aus den nativen Add-on-Optionen gelesen.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationUpdate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Integration'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ClientError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /admin/network/services/{service}/test:
+    parameters:
+      - $ref: '#/components/parameters/Service'
+    post:
+      operationId: testNetworkService
+      summary: Gespeicherte interne Verbindung eines aktivierten Dienstes prüfen
+      description: Erfordert das Admin-Token. Ein negativer Verbindungstest wird im Prüfergebnis gemeldet.
+      responses:
+        '200':
+          $ref: '#/components/responses/Integration'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ClientError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /knowledge/status:
+    get:
+      operationId: knowledgeStatus
+      summary: Index, Worker, Fehler und Startoptionen anzeigen
+      description: Erfordert das Admin-Token.
+      responses:
+        '200': {description: "Dokumentanzahl, Aufträge, Worker-Herzschlag und wirksame Optionen"}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '503': {$ref: '#/components/responses/Unavailable'}
+  /knowledge/documents:
+    get:
+      operationId: knowledgeDocuments
+      summary: Dokumente und letzte Verarbeitungszustände auflisten
+      description: Erfordert das Admin-Token. Bis zu 100 Dokumente pro Seite.
+      parameters:
+        - {name: after, in: query, schema: {type: string, maxLength: 1500}}
+      responses:
+        '200': {description: Dokumentliste und optionaler next-Cursor}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /knowledge/documents/{name}:
+    put:
+      operationId: uploadKnowledgeDocument
+      summary: Datei im privaten Eingang speichern und zur Verarbeitung vormerken
+      description: Erfordert das Admin-Token. Derselbe Name und Hash legen keinen zweiten Auftrag an.
+      parameters:
+        - {name: name, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: {type: string, format: binary}
+      responses:
+        '202': {description: "Pfad, SHA-256 und queued-Indikator"}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '413': {$ref: '#/components/responses/ClientError'}
+        '415': {$ref: '#/components/responses/ClientError'}
+        '422': {$ref: '#/components/responses/ClientError'}
+        '429': {$ref: '#/components/responses/ClientError'}
+  /knowledge/query:
+    post:
+      operationId: queryKnowledge
+      summary: Wissensbelege abrufen und optional vom Modell beantwortete Frage
+      description: Erfordert das Admin-Token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [question]
+              properties:
+                question: {type: string, minLength: 3, maxLength: 1500}
+                prefix: {type: string, maxLength: 400}
+                limit: {type: integer, minimum: 1, maximum: 10, default: 5}
+                answer: {type: boolean, default: false}
+                profile: {type: string, enum: [general, jarvis, friday], default: general}
+      responses:
+        '200':
+          description: Gefundene Quellen und optionaler Antworttext
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sources, answer, answer_status, retrieval, reranking]
+                properties:
+                  answer: {type: [string, 'null']}
+                  answer_status: {type: string, enum: [not_requested, answered, no_evidence, model_not_configured, model_unavailable, unverified_citations]}
+                  retrieval: {type: string, enum: [lexical, hybrid]}
+                  reranking: {type: string, enum: [none, lexical_cpu, cross_encoder]}
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, chunk_id, path, excerpt, location]
+                      properties:
+                        id: {type: string}
+                        chunk_id: {type: string, format: uuid}
+                        path: {type: string}
+                        excerpt: {type: string}
+                        location: {type: string}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '422': {$ref: '#/components/responses/ClientError'}
+        '429': {$ref: '#/components/responses/ClientError'}
+  /knowledge/index/repair:
+    post:
+      operationId: repairKnowledgeIndex
+      summary: Gleicht Qdrant asynchron mit den in PostgreSQL gespeicherten Vektoren ab
+      description: Erfordert das Admin-Token und einen fortgesetzten Dokument-Worker.
+      responses:
+        '202': {description: Indexabgleich ist vorgemerkt}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /knowledge/retry:
+    post:
+      operationId: retryKnowledgeDocument
+      summary: Fehlerauftrag wiederholen oder Dokument erneut indexieren
+      description: Erfordert das Admin-Token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path]
+              properties:
+                path: {type: string, maxLength: 1500}
+                reindex: {type: boolean, default: false}
+      responses:
+        '200': {description: queued-Indikator}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /knowledge/worker:
+    put:
+      operationId: pauseKnowledgeWorker
+      summary: Verarbeitung vor dem nächsten Auftrag pausieren oder fortsetzen
+      description: Erfordert das Admin-Token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [paused]
+              properties:
+                paused: {type: boolean}
+      responses:
+        '200': {description: Gespeicherter Pausenzustand}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/session:
+    get:
+      operationId: intelligenceSession
+      summary: Rolle, Assistenten und Modi anzeigen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats:
+    get:
+      operationId: listConversations
+      summary: Unterhaltungen suchen und auflisten
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    post:
+      operationId: createConversation
+      summary: Unterhaltung mit Modus und Profil erstellen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '201': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+    get:
+      operationId: getConversation
+      summary: Nachrichten, Quellen und Anhänge lesen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    patch:
+      operationId: updateConversation
+      summary: Titel, Profil, Modus oder Archivstatus ändern
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    delete:
+      operationId: deleteConversation
+      summary: Gespeicherten Chat löschen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/attachments/{name}:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: name, in: path, required: true, schema: {type: string}}
+    put:
+      operationId: uploadConversationAttachment
+      summary: Privaten oder dauerhaft freigegebenen Anhang verarbeiten
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '201': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/attachments/{attachment}:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: attachment, in: path, required: true, schema: {type: string, format: uuid}}
+    delete:
+      operationId: removeConversationAttachment
+      summary: Einen noch ungebundenen Anhang löschen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: submitConversationMessage
+      summary: Idempotent eine Nachricht vormerken und Antwort starten
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_id, text]
+              properties:
+                request_id: {type: string, format: uuid}
+                text: {type: string, maxLength: 3000}
+                attachments:
+                  type: array
+                  maxItems: 4
+                  items: {type: string, format: uuid}
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '202': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages/{message}/cancel:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: message, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: cancelConversationGeneration
+      summary: Laufende Modellerzeugung abbrechen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages/{message}/retry:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: message, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: retryConversationGeneration
+      summary: Letzte Modellantwort wiederholen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '202': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /intelligence/chats/{chat_id}/messages/{message}/confirm:
+    parameters:
+      - {name: chat_id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: message, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: confirmConversationAction
+      summary: Vorgemerkte Aktion einmalig ausführen
+      description: Erfordert das Admin- oder Chat-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /admin/intelligence:
+    get:
+      operationId: readIntelligencePolicy
+      summary: Routing-Einstellungen und letzte Zustände lesen
+      description: Erfordert das Admin-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    put:
+      operationId: writeIntelligencePolicy
+      summary: Profile und Werkzeugfreigaben ändern
+      description: Erfordert das Admin-Token.
+      responses:
+        '200': {description: Erfolgreich}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /admin/intelligence/test-routing:
+    post:
+      operationId: previewIntelligenceRoute
+      summary: Route ermitteln ohne einen Dienst aufzurufen
+      responses:
+        '200': {description: Name der ermittelten Route}
+        '401': {$ref: '#/components/responses/Unauthorized'}
 components:
+  parameters:
+    Service:
+      name: service
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[a-z][a-z0-9_-]{1,39}$'
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
   schemas:
+    IntegrationSettings:
+      type: object
+      properties:
+        enabled: {type: boolean, default: false}
+        internal_url: {type: string, maxLength: 600}
+        public_url: {type: string, maxLength: 600}
+        auth_mode: {type: string, enum: [none, basic, bearer]}
+        credential_reference: {type: string, maxLength: 120}
+        timeout_seconds: {type: [integer, 'null'], minimum: 1, maximum: 30}
+        tls_verification: {type: string, enum: [system, custom_ca]}
+    IntegrationUpdate:
+      allOf:
+        - $ref: '#/components/schemas/IntegrationSettings'
+        - type: object
+          properties:
+            username: {type: [string, 'null'], writeOnly: true, maxLength: 300}
+            secret: {type: [string, 'null'], writeOnly: true, maxLength: 4096}
+            remove_secret: {type: boolean, default: false}
+      unevaluatedProperties: false
+    IntegrationStatus:
+      allOf:
+        - $ref: '#/components/schemas/IntegrationSettings'
+        - type: object
+          required: [key, label, has_credential, last_check, last_success_at]
+          properties:
+            key: {type: string}
+            label: {type: string}
+            has_credential: {type: boolean}
+            last_check:
+              type: [object, 'null']
+              properties:
+                status: {type: string, enum: [available, unauthorized, unavailable, tls_error, unexpected]}
+                message: {type: string}
+                checked_at: {type: string, format: date-time}
+            last_success_at: {type: [string, 'null'], format: date-time}
     Batch:
       type: object
       required: [source, records]
@@ -155,6 +571,12 @@ components:
             code: {type: string}
             message: {type: string}
   responses:
+    Integration:
+      description: Einstellungen und Prüfergebnis ohne Zugangsdaten
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IntegrationStatus'
     ClientError:
       description: Die Anfrage kann nicht unverändert wiederholt werden.
       content:

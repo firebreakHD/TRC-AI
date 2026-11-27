@@ -3,6 +3,7 @@ set -euo pipefail
 
 install -d -m 0700 -o postgres -g postgres /data/postgresql
 install -d -m 0750 -o trc -g trc /data/config
+install -d -m 0700 -o trc -g trc /data/documents
 install -d -m 0700 -o qdrant -g qdrant /data/qdrant
 install -d -m 0755 -o postgres -g postgres /run/postgresql
 install -d -m 0750 -o root -g trc /run/trc
@@ -32,5 +33,8 @@ if [[ ! -e /data/postgresql/cluster ]]; then
     mv -- "$staging" /data/postgresql/cluster
     trap - EXIT TERM INT
 fi
+
+TRC_PG_BUFFERS_MB=$(/opt/venv/bin/python -c 'from trc.rag.config import load; print(load().rag_pg_buffers_mib)')
+export TRC_PG_BUFFERS_MB
 
 exec /usr/bin/supervisord -n -c /opt/trc/supervisord.conf

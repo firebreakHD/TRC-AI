@@ -1,0 +1,484 @@
+{
+  "id": "6bfd7269d9ccf242",
+  "name": "TRC · Data Tables einrichten",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Vienna",
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveExecutionProgress": false,
+    "saveManualExecutions": false,
+    "executionTimeout": 420,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a5c664ada6d4bcfd",
+      "name": "Manuell",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "trc_config",
+        "columns": {
+          "column": [
+            {
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "name": "value_json",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "92b5f09f6e8b745a",
+      "name": "Tabelle trc_config",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "trc_state",
+        "columns": {
+          "column": [
+            {
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "name": "value_json",
+              "type": "string"
+            },
+            {
+              "name": "updated_at",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "a506002029185321",
+      "name": "Tabelle trc_state",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "trc_cache",
+        "columns": {
+          "column": [
+            {
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "name": "area",
+              "type": "string"
+            },
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "external_id",
+              "type": "string"
+            },
+            {
+              "name": "observed_at",
+              "type": "string"
+            },
+            {
+              "name": "stored_at",
+              "type": "string"
+            },
+            {
+              "name": "payload_json",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "a6d337aefbf8c69b",
+      "name": "Tabelle trc_cache",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "trc_queue",
+        "columns": {
+          "column": [
+            {
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "name": "area",
+              "type": "string"
+            },
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "attempts",
+              "type": "number"
+            },
+            {
+              "name": "next_at",
+              "type": "string"
+            },
+            {
+              "name": "finished_at",
+              "type": "string"
+            },
+            {
+              "name": "error",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "34bc43c8aac0fd9a",
+      "name": "Tabelle trc_queue",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "trc_delivery",
+        "columns": {
+          "column": [
+            {
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "name": "channel",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "digest",
+              "type": "string"
+            },
+            {
+              "name": "sent_at",
+              "type": "string"
+            },
+            {
+              "name": "error",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "a7f4b2c0fb39fff5",
+      "name": "Tabelle trc_delivery",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "trc_events",
+        "columns": {
+          "column": [
+            {
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "seen_at",
+              "type": "string"
+            },
+            {
+              "name": "details_json",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "c68d628ef018e14f",
+      "name": "Tabelle trc_events",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "/* Shared functions embedded in n8n Code nodes by scripts/build.mjs. */\nconst crypto = require('crypto');\nconst {URL} = require(\"url\");\nconst AREAS = new Set(['emails', 'calendar', 'tasks', 'messenger', 'market-prices', 'news', 'research', 'reports', 'notifications']);\nconst TZ = 'Europe/Vienna';\nconst OUT = values => values.map(json => ({json}));\nconst objects = items => items.map(item => item.json);\nconst list = value => value == null ? [] : Array.isArray(value) ? value : [value];\nconst str = (value, limit = 300) => String(value ?? '').slice(0, limit);\nconst date = value => {\n  if (typeof value === 'string' && /^\\d{4}-\\d\\d-\\d\\d$/.test(value)) value += 'T00:00:00Z';\n  if (typeof value === \"string\" && !/(?:Z|[+-]\\d\\d:\\d\\d|GMT|UTC)$/i.test(value)) {\n    if (/^\\d{4}-\\d\\d-\\d\\dT/.test(value)) return null;\n  }\n  const t = new Date(value);\n  return value != null && Number.isFinite(t.getTime()) ? t.toISOString() : null;\n};\nconst earlier = (t, ms) => new Date(Date.parse(t) - ms).toISOString();\nconst now = () => new Date().toISOString();\nconst viennaDate = new Intl.DateTimeFormat('en-CA', {\n  timeZone:TZ, calendar:'gregory', numberingSystem:'latn', year:'numeric', month:'2-digit', day:'2-digit'\n});\nconst localDay = value => {\n  const fields = Object.fromEntries(viennaDate.formatToParts(new Date(value)).map(({type,value}) => [type,value]));\n  return fields.year.padStart(4,'0') + '-' + fields.month + '-' + fields.day;\n};\nconst sha = value => crypto.createHash('sha256').update(value).digest('hex');\nfunction uuid(content) {\n  const h = sha(content);\n  return h.slice(0,8)+'-'+h.slice(8,12)+'-5'+h.slice(13,16)+'-8'+h.slice(17,20)+'-'+h.slice(20,32);\n}\nconst iso = (value, fallback) => date(value) || fallback;\nconst cleanId = value => {\n  const id = String(value ?? '');\n  if (!id || /[\\u0000-\\u001f]/u.test(id)) throw Error('Ungültige externe ID');\n  return id.length <= 256 ? id : sha(id);\n};\nconst sourceId = (key, config) => {\n  const name = (config.source || key).toLowerCase();\n  if (!/^[a-z0-9][a-z0-9._-]{0,63}$/.test(name)) throw Error('Ungültige Quellkennung');\n  return name;\n};\nconst bytes = value => Buffer.byteLength(value, 'utf8');\nconst parse = (value, defaultValue = {}) => typeof value === 'string' && value.length ? JSON.parse(value) : value ?? defaultValue;\nconst escaped = value => str(value, 10000).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]));\nconst validText = (s, max = 500) => typeof s === 'string' && s.length > 0 && s.length <= max && !/[\\r\\n\\0]/.test(s);\nconst part = value => encodeURIComponent(String(value));\nconst limits = (v, fallback, max) => {\n  if (v == null) return fallback;\n  if (!Number.isInteger(v) || v < 1 || v > max) throw Error('Ungültiges Limit');\n  return v;\n};\nfunction baseUrl(s, external = false) {\n  if (typeof s !== 'string') throw Error('Dienstadresse fehlt');\n  const u = new URL(s);\n  if ((external ? u.protocol !== 'https:' : !['https:','http:'].includes(u.protocol)) || u.username || u.password || u.search || u.hash)\n    throw Error('Ungültige Dienstadresse');\n  return u.toString().replace(/\\/+$/, '');\n}\nconst q = (url, fields) => {\n  const u = new URL(url);\n  for (const [key, value] of Object.entries(fields)) if (value !== '' && value != null) {\n    for (const item of list(value)) u.searchParams.append(key, String(item));\n  }\n  return u.toString();\n};\nconst normalized = (area, source, externalId, updated, payload, fetched = now()) => {\n  if (!AREAS.has(area)) throw Error('Unbekannter Datenbereich');\n  return {key:sha(area+'\\n'+source+'\\n'+cleanId(externalId)),area,source,external_id:cleanId(externalId),\n          observed_at:iso(updated,fetched),payload};\n};\nfunction batches(records, t = now()) {\n  const groups = new Map();\n  for (const record of records) {\n    if (!AREAS.has(record.area)) throw Error('Unbekannter Importbereich');\n    const key = record.area+'\\n'+record.source;\n    if (!groups.has(key)) groups.set(key, new Map());\n    const unique = groups.get(key);\n    const old = unique.get(record.external_id);\n    if (!old || record.observed_at > old.observed_at) unique.set(record.external_id, record);\n  }\n  const out = [];\n  for (const [group, unique] of groups) {\n    const [area, source] = group.split('\\n');\n    let buffer = [];\n    function emit() {\n      const body = JSON.stringify({source, records:buffer});\n      const key = uuid(area+'\\n'+body);\n      out.push({key,area,source,body,status:'pending',attempts:0,next_at:t,finished_at:'',error:''});\n      buffer = [];\n    }\n    for (const {external_id, observed_at, payload} of unique.values()) {\n      const row = {external_id,observed_at,payload};\n      if (bytes(JSON.stringify({source,records:[row]})) > 512*1024) throw Error('Einzelner Datensatz überschreitet 512 KiB');\n      if (buffer.length === 100 || bytes(JSON.stringify({source,records:[...buffer,row]})) > 512*1024) emit();\n      buffer.push(row);\n    }\n    if (buffer.length) emit();\n  }\n  return out;\n}\nfunction retry(row, statusCode, retryAfter, t = now(), maxAttempts = 4) {\n  const attempts = Number(row.attempts) + 1;\n  let status = 'dead';\n  let next_at = '';\n  let finished_at = t;\n  let error = statusCode ? 'http_'+statusCode : 'transport';\n  if (statusCode >= 200 && statusCode < 300) {\n    status = 'sent';\n    error = '';\n  } else if ((!statusCode || [408,425,429].includes(statusCode) || (statusCode >= 500 && statusCode <= 599))\n             && attempts < maxAttempts) {\n    status = 'pending';\n    const seconds = /^\\d+$/.test(String(retryAfter ?? '')) ? Number(retryAfter) :\n      Math.max(0, (Date.parse(retryAfter) - Date.parse(t))/1000 || 0);\n    const ms = Math.max([5,15,45,180,600][Math.min(attempts-1,4)]*1000, Math.min(seconds,86400)*1000);\n    next_at = new Date(Date.parse(t)+ms).toISOString();\n    finished_at = '';\n  }\n  return {id:row.id,key:row.key,status,attempts,next_at,finished_at,error};\n}\nfunction httpResult(item) {\n  const data = item?.json || {};\n  const code = Number(data.statusCode) || 0;\n  return {code, headers:data.headers || {}, body:Object.hasOwn(data,'body')?data.body:data.data};\n}\nfunction configFrom(row, key, manual = {}) {\n  if (row.key !== key) return null;\n  const config = parse(row.value_json);\n  if (config.enabled !== true) return null;\n  return {...config, source:sourceId(key, config), manual};\n}\nfunction assertOk(result, service, allowed = []) {\n  if (result.code < 200 || result.code >= 300) {\n    if (!allowed.includes(result.code)) throw Error(service+' HTTP '+(result.code || 'Transportfehler'));\n  }\n}\nfunction csv(text) {\n  const rows = [];\n  let row = [], field = '', quoted = false;\n  for (let i=0; i<text.length; i++) {\n    const ch = text[i];\n    if (quoted && ch === '\"' && text[i+1] === '\"') {field += '\"'; i++;}\n    else if (ch === '\"') quoted = !quoted;\n    else if (ch === ',' && !quoted) {row.push(field); field = '';}\n    else if (ch === '\\n' && !quoted) {row.push(field.replace(/\\r$/,'')); rows.push(row); row=[]; field='';}\n    else field += ch;\n  }\n  if (quoted) throw Error('CSV-Feld nicht geschlossen');\n  if (field || row.length) rows.push([...row,field.replace(/\\r$/,'')]);\n  const head = rows.shift() || [];\n  return rows.filter(row => row.length===head.length).map(row => Object.fromEntries(row.map((value,i)=>[head[i],value])));\n}\nfunction pathSegments(path) {\n  const parts = String(path).split('/').filter(Boolean);\n  if (!parts.length || parts.length > 20 || parts.some(p=>!validText(p,200)||p==='.'||p==='..'||p.includes('\\\\')||p.includes('%')))\n    throw Error('Ungültiger Datei- oder Ordnerpfad');\n  return parts.map(part).join('/');\n}\n\n\nreturn OUT([{\"key\":\"addresses\",\"value_json\":\"{\\\"nextcloud\\\":\\\"\\\",\\\"homeAssistant\\\":\\\"\\\",\\\"couchDb\\\":\\\"\\\",\\\"hermes\\\":\\\"\\\",\\\"ollama\\\":\\\"\\\"}\"},{\"key\":\"trc\",\"value_json\":\"{\\\"enabled\\\":false,\\\"baseUrl\\\":\\\"\\\",\\\"maxAttempts\\\":4,\\\"batchLimit\\\":20}\"},{\"key\":\"gmail\",\"value_json\":\"{\\\"enabled\\\":false,\\\"source\\\":\\\"gmail-primary\\\",\\\"query\\\":\\\"newer_than:30d\\\",\\\"labels\\\":[],\\\"history\\\":true,\\\"snippet\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"gmail-message\",\"value_json\":\"{\\\"enabled\\\":false,\\\"maxBytes\\\":65536}\"},{\"key\":\"gmail-attachment\",\"value_json\":\"{\\\"enabled\\\":false,\\\"maxBytes\\\":10485760}\"},{\"key\":\"gmail-write\",\"value_json\":\"{\\\"enabled\\\":false,\\\"writesEnabled\\\":false,\\\"actions\\\":[\\\"send\\\",\\\"draft\\\"],\\\"recipients\\\":[]}\"},{\"key\":\"calendar\",\"value_json\":\"{\\\"enabled\\\":false,\\\"source\\\":\\\"calendar-primary\\\",\\\"calendarIds\\\":[],\\\"syncToken\\\":true,\\\"agendaDays\\\":31,\\\"importTrc\\\":false}\"},{\"key\":\"calendar-agenda\",\"value_json\":\"{\\\"enabled\\\":false,\\\"source\\\":\\\"calendar-agenda\\\",\\\"calendarIds\\\":[],\\\"syncToken\\\":false,\\\"agendaDays\\\":31,\\\"importTrc\\\":false}\"},{\"key\":\"calendar-write\",\"value_json\":\"{\\\"enabled\\\":false,\\\"writesEnabled\\\":false,\\\"actions\\\":[\\\"create\\\",\\\"update\\\"],\\\"calendarIds\\\":[]}\"},{\"key\":\"tasks\",\"value_json\":\"{\\\"enabled\\\":false,\\\"source\\\":\\\"tasks-primary\\\",\\\"taskListIds\\\":[],\\\"importTrc\\\":false}\"},{\"key\":\"tasks-write\",\"value_json\":\"{\\\"enabled\\\":false,\\\"writesEnabled\\\":false,\\\"actions\\\":[\\\"create\\\",\\\"update\\\",\\\"complete\\\"],\\\"taskListIds\\\":[]}\"},{\"key\":\"dav\",\"value_json\":\"{\\\"enabled\\\":false,\\\"user\\\":\\\"\\\",\\\"directories\\\":[],\\\"exclude\\\":[],\\\"extensions\\\":[\\\".md\\\",\\\".pdf\\\",\\\".docx\\\",\\\".xlsx\\\",\\\".txt\\\"],\\\"maxFileBytes\\\":20971520}\"},{\"key\":\"dav-download\",\"value_json\":\"{\\\"enabled\\\":false,\\\"user\\\":\\\"\\\",\\\"directories\\\":[],\\\"maxBytes\\\":20971520}\"},{\"key\":\"dav-export\",\"value_json\":\"{\\\"enabled\\\":false,\\\"writesEnabled\\\":false,\\\"actions\\\":[\\\"put\\\"],\\\"user\\\":\\\"\\\",\\\"directory\\\":\\\"\\\"}\"},{\"key\":\"talk\",\"value_json\":\"{\\\"enabled\\\":false,\\\"source\\\":\\\"talk-primary\\\",\\\"rooms\\\":[],\\\"importTrc\\\":false}\"},{\"key\":\"talk-write\",\"value_json\":\"{\\\"enabled\\\":false,\\\"writesEnabled\\\":false,\\\"actions\\\":[\\\"send\\\"],\\\"rooms\\\":[]}\"},{\"key\":\"couch\",\"value_json\":\"{\\\"enabled\\\":false,\\\"database\\\":\\\"\\\",\\\"importTrc\\\":false}\"},{\"key\":\"home\",\"value_json\":\"{\\\"enabled\\\":false,\\\"entities\\\":[],\\\"importTrc\\\":false}\"},{\"key\":\"ha-write\",\"value_json\":\"{\\\"enabled\\\":false,\\\"writesEnabled\\\":false,\\\"actions\\\":[\\\"service\\\"],\\\"services\\\":[],\\\"entities\\\":[]}\"},{\"key\":\"stocks\",\"value_json\":\"{\\\"enabled\\\":false,\\\"historyDays\\\":730,\\\"importTrc\\\":false,\\\"symbols\\\":[{\\\"symbol\\\":\\\"NVDA\\\",\\\"name\\\":\\\"NVIDIA\\\",\\\"category\\\":\\\"stock\\\",\\\"group\\\":\\\"ai\\\"},{\\\"symbol\\\":\\\"AMD\\\",\\\"name\\\":\\\"AMD\\\",\\\"category\\\":\\\"stock\\\",\\\"group\\\":\\\"ai\\\"},{\\\"symbol\\\":\\\"MSFT\\\",\\\"name\\\":\\\"Microsoft\\\",\\\"category\\\":\\\"stock\\\",\\\"group\\\":\\\"tech\\\"},{\\\"symbol\\\":\\\"GOOGL\\\",\\\"name\\\":\\\"Alphabet\\\",\\\"category\\\":\\\"stock\\\",\\\"group\\\":\\\"tech\\\"},{\\\"symbol\\\":\\\"IONQ\\\",\\\"name\\\":\\\"IonQ\\\",\\\"category\\\":\\\"stock\\\",\\\"group\\\":\\\"quantum\\\"},{\\\"symbol\\\":\\\"RGTI\\\",\\\"name\\\":\\\"Rigetti Computing\\\",\\\"category\\\":\\\"stock\\\",\\\"group\\\":\\\"quantum\\\"},{\\\"symbol\\\":\\\"QBTS\\\",\\\"name\\\":\\\"D-Wave Quantum\\\",\\\"category\\\":\\\"stock\\\",\\\"group\\\":\\\"quantum\\\"}]}\"},{\"key\":\"kraken\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false,\\\"symbols\\\":[{\\\"symbol\\\":\\\"BTC\\\",\\\"name\\\":\\\"Bitcoin\\\",\\\"pair\\\":\\\"XBTUSD\\\",\\\"currency\\\":\\\"USD\\\",\\\"category\\\":\\\"crypto\\\",\\\"exchange\\\":\\\"Kraken\\\"},{\\\"symbol\\\":\\\"ETH\\\",\\\"name\\\":\\\"Ethereum\\\",\\\"pair\\\":\\\"ETHUSD\\\",\\\"currency\\\":\\\"USD\\\",\\\"category\\\":\\\"crypto\\\",\\\"exchange\\\":\\\"Kraken\\\"},{\\\"symbol\\\":\\\"SOL\\\",\\\"name\\\":\\\"Solana\\\",\\\"pair\\\":\\\"SOLUSD\\\",\\\"currency\\\":\\\"USD\\\",\\\"category\\\":\\\"crypto\\\",\\\"exchange\\\":\\\"Kraken\\\"}]}\"},{\"key\":\"ecb\",\"value_json\":\"{\\\"enabled\\\":false,\\\"currencies\\\":[\\\"USD\\\"],\\\"historyDays\\\":740,\\\"importTrc\\\":false}\"},{\"key\":\"metals\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false,\\\"symbols\\\":[{\\\"symbol\\\":\\\"XAU\\\",\\\"name\\\":\\\"Gold\\\",\\\"category\\\":\\\"metal\\\"},{\\\"symbol\\\":\\\"XAG\\\",\\\"name\\\":\\\"Silber\\\",\\\"category\\\":\\\"metal\\\"}]}\"},{\"key\":\"metal-history\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false,\\\"symbols\\\":[{\\\"symbol\\\":\\\"XAU\\\",\\\"name\\\":\\\"Gold\\\",\\\"category\\\":\\\"metal\\\"},{\\\"symbol\\\":\\\"XAG\\\",\\\"name\\\":\\\"Silber\\\",\\\"category\\\":\\\"metal\\\"}]}\"},{\"key\":\"dealer\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"news\",\"value_json\":\"{\\\"enabled\\\":false,\\\"keywords\\\":[],\\\"limit\\\":30,\\\"importTrc\\\":false,\\\"feeds\\\":[{\\\"name\\\":\\\"OpenAI News\\\",\\\"url\\\":\\\"https://openai.com/news/rss.xml\\\",\\\"category\\\":\\\"ai\\\"},{\\\"name\\\":\\\"Google DeepMind\\\",\\\"url\\\":\\\"https://deepmind.google/blog/rss.xml\\\",\\\"category\\\":\\\"ai\\\"},{\\\"name\\\":\\\"Microsoft Research\\\",\\\"url\\\":\\\"https://www.microsoft.com/en-us/research/feed/\\\",\\\"category\\\":\\\"tech\\\"},{\\\"name\\\":\\\"Ollama Releases\\\",\\\"url\\\":\\\"https://github.com/ollama/ollama/releases.atom\\\",\\\"category\\\":\\\"local-ai\\\"},{\\\"name\\\":\\\"ROCm Releases\\\",\\\"url\\\":\\\"https://github.com/ROCm/rocm-systems/releases.atom\\\",\\\"category\\\":\\\"amd\\\"},{\\\"name\\\":\\\"TensorRT-LLM Releases\\\",\\\"url\\\":\\\"https://github.com/NVIDIA/TensorRT-LLM/releases.atom\\\",\\\"category\\\":\\\"nvidia\\\"},{\\\"name\\\":\\\"Anthropic Claude Code Releases\\\",\\\"url\\\":\\\"https://github.com/anthropics/claude-code/releases.atom\\\",\\\"category\\\":\\\"local-ai\\\"},{\\\"name\\\":\\\"EZB-Pressemitteilungen\\\",\\\"url\\\":\\\"https://www.ecb.europa.eu/rss/press.html\\\",\\\"category\\\":\\\"economy\\\"},{\\\"name\\\":\\\"Federal Reserve Pressemitteilungen\\\",\\\"url\\\":\\\"https://www.federalreserve.gov/feeds/press_all.xml\\\",\\\"category\\\":\\\"economy\\\"}]}\"},{\"key\":\"quantum-news\",\"value_json\":\"{\\\"enabled\\\":false,\\\"keywords\\\":[\\\"quantum\\\",\\\"qubit\\\",\\\"ionq\\\",\\\"rigetti\\\",\\\"annealing\\\"],\\\"limit\\\":30,\\\"importTrc\\\":false,\\\"feeds\\\":[{\\\"name\\\":\\\"Qiskit Releases\\\",\\\"url\\\":\\\"https://github.com/Qiskit/qiskit/releases.atom\\\",\\\"category\\\":\\\"quantum\\\"}]}\"},{\"key\":\"research\",\"value_json\":\"{\\\"enabled\\\":false,\\\"limit\\\":25,\\\"importTrc\\\":false,\\\"topics\\\":[{\\\"name\\\":\\\"KI\\\",\\\"query\\\":\\\"cat:cs.AI\\\"},{\\\"name\\\":\\\"Quantum\\\",\\\"query\\\":\\\"cat:quant-ph\\\"},{\\\"name\\\":\\\"Embeddings und RAG\\\",\\\"query\\\":\\\"cat:cs.CL AND (ti:retrieval OR ti:embedding)\\\"},{\\\"name\\\":\\\"Lokale Inferenz\\\",\\\"query\\\":\\\"cat:cs.LG AND (ti:quantization OR ti:inference)\\\"},{\\\"name\\\":\\\"Modellarchitekturen\\\",\\\"query\\\":\\\"cat:cs.LG AND (ti:architecture OR abs:architecture)\\\"},{\\\"name\\\":\\\"Effiziente KI-Hardware\\\",\\\"query\\\":\\\"cat:cs.AR AND (ti:inference OR abs:accelerator)\\\"}]}\"},{\"key\":\"reports\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false,\\\"sections\\\":[],\\\"importantRooms\\\":[],\\\"maxRows\\\":12,\\\"maxCacheRows\\\":24000,\\\"format\\\":\\\"markdown\\\",\\\"delivery\\\":null,\\\"priority\\\":\\\"normal\\\"}\"},{\"key\":\"smtp-write\",\"value_json\":\"{\\\"enabled\\\":false,\\\"writesEnabled\\\":false,\\\"actions\\\":[\\\"send\\\"],\\\"from\\\":\\\"\\\",\\\"recipients\\\":[]}\"},{\"key\":\"dispatch\",\"value_json\":\"{\\\"enabled\\\":false,\\\"fallbackOrder\\\":[]}\"},{\"key\":\"health\",\"value_json\":\"{\\\"enabled\\\":false,\\\"services\\\":[],\\\"importTrc\\\":false}\"},{\"key\":\"ha-health\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"nextcloud-health\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"talk-health\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"couch-health\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"hermes-health\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"ollama-health\",\"value_json\":\"{\\\"enabled\\\":false,\\\"importTrc\\\":false}\"},{\"key\":\"alerts\",\"value_json\":\"{\\\"enabled\\\":false,\\\"minutes\\\":120,\\\"recovery\\\":false,\\\"maxAgeHours\\\":72,\\\"sourceMaxAgeHours\\\":{},\\\"delivery\\\":{}}\"},{\"key\":\"maintenance\",\"value_json\":\"{\\\"enabled\\\":false,\\\"cacheDays\\\":750,\\\"personalDays\\\":30,\\\"sentDays\\\":14,\\\"eventDays\\\":30,\\\"deliveryDays\\\":180,\\\"maxCacheRows\\\":24000,\\\"warnBytes\\\":146800640,\\\"dataTableLimitBytes\\\":209715200,\\\"purgeLimit\\\":250}\"}]);"
+      },
+      "id": "3b307c589fa872fa",
+      "name": "Standardeinstellungen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "trc_config"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "key",
+              "condition": "eq",
+              "keyValue": "={{ $json.key }}"
+            }
+          ]
+        },
+        "matchType": "allConditions"
+      },
+      "id": "770de7cf93faacdb",
+      "name": "Fehlende Einstellungen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "trc_config"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "key": "={{ $json.key }}",
+            "value_json": "={{ $json.value_json }}"
+          },
+          "schema": [
+            {
+              "id": "key",
+              "displayName": "key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "value_json",
+              "displayName": "value_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "012017ef50ccc02a",
+      "name": "Einstellungen eintragen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Manuell": {
+      "main": [
+        [
+          {
+            "node": "Tabelle trc_config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tabelle trc_config": {
+      "main": [
+        [
+          {
+            "node": "Tabelle trc_state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tabelle trc_state": {
+      "main": [
+        [
+          {
+            "node": "Tabelle trc_cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tabelle trc_cache": {
+      "main": [
+        [
+          {
+            "node": "Tabelle trc_queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tabelle trc_queue": {
+      "main": [
+        [
+          {
+            "node": "Tabelle trc_delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tabelle trc_delivery": {
+      "main": [
+        [
+          {
+            "node": "Tabelle trc_events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tabelle trc_events": {
+      "main": [
+        [
+          {
+            "node": "Standardeinstellungen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Standardeinstellungen": {
+      "main": [
+        [
+          {
+            "node": "Fehlende Einstellungen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fehlende Einstellungen": {
+      "main": [
+        [
+          {
+            "node": "Einstellungen eintragen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "tags": [],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

@@ -1,7 +1,8 @@
 # Offene Punkte
 
-1. Bereinigtes RAG-Paket anfordern. Benötigt werden Compose-Dateien, Systemübersicht, AGENTS.md, zugehörige Dockerfiles, Migrationen, Pipeline-Code und Tests samt Freigabe je Komponente.
-2. Repository oder Branch für MCP-Panel, Google und weitere MCP-Server zuordnen. Gemeldete Setup-Varianten mit dem installierten Stand abgleichen.
-3. Isolierten Testzugang zu HAOS, Ollama, Hermes, Whisper/Piper, n8n, WebDAV und Nextcloud Talk bereitstellen. Konkrete installierte Versionen, Piper-Stimmen und Talk-Audio erst danach bestätigen.
-4. Fachliche n8n-Schemata zusammen mit den tatsächlich erstellten Workflow-Dateien abstimmen. Quellaktualität, Löschereignisse und Aufbewahrung ergänzen.
-5. HAOS-Rücksicherung beider Datenbanken, offene weitere Live-Tests und Zielhardware-Messungen vervollständigen.
+1. HAOS-Abnahme mit Ingress, optionalem freien Host-Port, bestehendem Ollama, Produktivlast und Supervisor-Rücksicherung.
+2. Nextcloud/WebDAV-Synchronisation und lokal exportierte Obsidian-Vaults mit freigegebenen Datenquellen erproben. Der lokale Ordner und die Upload-API stehen als Eingänge bereit.
+3. Relevanz, Größenlimits und Modellwechsel mit einem größeren Datensatz prüfen. Den optionalen CPU-/ONNX-Cross-Encoder mit realen Anfragen vergleichen.
+4. Reale Antwortgenerierung mit dem vorhandenen lokalen Modell und dessen Inferenzbudget prüfen. Assistenzsitzungen, Sprachkanäle und Telefonie folgen anschließend. Beeper ist die letzte Integrationsphase.
+
+TRC Intelligence verwendet einen lokalen Operator und berechtigungsgestufte Tokens. Getrennte Benutzerkonten und Langzeitgedächtnis sind spätere Arbeit. Hermes-Outbound und n8n-Webhooks sind separat freigegebene Routen. Ein vollständiger App-Stopp betrifft die TRC-Oberfläche. Unabhängige Home-Assistant- und Ollama-Oberflächen bleiben weiterhin verfügbar.

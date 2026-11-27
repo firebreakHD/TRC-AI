@@ -1,7 +1,17 @@
 # Architektur
 
-Der Startprozess initialisiert beim ersten Start PostgreSQL unter `/data/postgresql/cluster`. Supervisor führt PostgreSQL, Qdrant und FastAPI/Uvicorn unter getrennten Systembenutzern aus. Die API verbindet sich über einen lokalen Unix-Socket mit Peer-Authentifizierung. Migrationen laufen unter einer Transaktionssperre. Wird ein späterer Migrationsstand mit einem älteren Image gestartet, liefert der Dienst für Datenbankoperationen einen Fehler.
+Ein gemeinsames HAOS-Add-on betreibt PostgreSQL 18, Qdrant 1.18, die FastAPI/Uvicorn-Gateway-API und einen Dokument-Worker unter Supervisor. PostgreSQL nutzt einen Unix-Socket mit Peer-Authentifizierung. Qdrant bindet IPv4-Loopback. Die App bietet HAOS-Ingress und einen unbelegten Host-Port. Änderungen an der Proxy-Vertrauensliste gelten nach Neustart.
 
-Das Control Center lädt statische Dateien aus dem Add-on und bezieht Daten ausschließlich aus der Management-API. Relative Pfade erlauben den Einsatz hinter Home-Assistant-Ingress. Browser und Automatisierung haben eigene Zugriffsschlüssel. Datenimporte schreiben Inhalt und Idempotenzbeleg gemeinsam nach PostgreSQL.
+Ein Upload landet nach Validierung von Größe, Dateiname und Prüfsumme atomar im privaten Eingang. Der Watcher erfasst stabil lesbare Dateien aus dem Eingang und einem schreibgeschützten Unterordner von /share. PostgreSQL vergibt zeitlich begrenzte Auftragsleases. Der Worker startet einen begrenzten Parserprozess. Tesseract und Poppler kommen bei Bildern oder Scan-Seiten zum Einsatz. Docling Slim verarbeitet Word. Die Segmente erhalten Abschnitts-, Blatt- oder Seitenreferenzen und werden über das konfigurierte Ollama eingebettet.
 
-Das Add-on hängt für Start, Datenbank und Verwaltung von keinem Agenten ab. Die bestehenden Home-Assistant-, Ollama-, n8n- und Hermes-Dienste bleiben eigenständig. Die weitere Assistenzausbaustufe nutzt verfügbare Home-Assistant-Konversationsagenten und prüft die Wiederverwendung des vorhandenen JARVIS-Chats. Der neu zu integrierende Anfrageverteiler und Chat gehören außerhalb des TRC-AI-Add-ons. Qdrant bleibt auf IPv4-Loopback beschränkt. Die Dokumentenverarbeitung und produktive Collection-Schemata folgen nach Prüfung der freigegebenen RAG-Quellen.
+PostgreSQL hält Dokumentrevision, Metadaten, Chunktext und Vektoren. Qdrant ist eine abgeleitete Cosine-Projektion. Die API prüft Qdrant-Treffer gegen die aktuelle SQL-Revision. Fehlende Punkte lassen sich aus SQL wiederherstellen. PostgreSQL-Volltextsuche und Qdrant-Dense-Suche werden per Reciprocal Rank Fusion und begrenztem Reranking zusammengeführt.
+
+Ein konfiguriertes Ollama- oder OpenAI-kompatibles Antwortmodell erhält die Belegauswahl bei einer expliziten Antwortanfrage. JARVIS und FRIDAY sind als Antwortprofile vorbereitet. Chat-Verlauf, Sprache und Kanäle gehören zur späteren Assistenten-Integration.
+
+Die Workflow-API behält ihr Schreibformat und den Idempotenzschlüssel. Eine Admin-Lesefunktion gibt strukturierte Daten seitenweise aus. Home Assistant, Hermes, Sprache und n8n laufen eigenständig. Die API startet auch bei einem Ausfall des Modellanbieters.
+
+[Konfiguration](KNOWLEDGE.md) · [API](BACKEND_API.md) · [Backups](BACKUP_RESTORE.md)
+
+TRC Intelligence speichert Chatverlauf und Steuerungszustände in einer unabhängigen SQLite-Datei unter /data/config. Die zentrale Python-Tool-Registry prüft Modus, Profile und Freigaben. Der Chat nutzt bestehende Dienstprofile und kann innerhalb der laufenden App bei Ausfall der Wissensdatenbanken weiter mit Ollama und Home Assistant arbeiten. Admin und Chat teilen HTML, Navigation und Designsystem. Die API prüft Berechtigungen für jeden Pfad.
+
+[Chat](CHAT_SYSTEM.md) · [Routing](ROUTING.md)

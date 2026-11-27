@@ -1,0 +1,162 @@
+[
+  {
+    "key": "addresses",
+    "value_json": "{\"nextcloud\":\"\",\"homeAssistant\":\"\",\"couchDb\":\"\",\"hermes\":\"\",\"ollama\":\"\"}"
+  },
+  {
+    "key": "trc",
+    "value_json": "{\"enabled\":false,\"baseUrl\":\"\",\"maxAttempts\":4,\"batchLimit\":20}"
+  },
+  {
+    "key": "gmail",
+    "value_json": "{\"enabled\":false,\"source\":\"gmail-primary\",\"query\":\"newer_than:30d\",\"labels\":[],\"history\":true,\"snippet\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "gmail-message",
+    "value_json": "{\"enabled\":false,\"maxBytes\":65536}"
+  },
+  {
+    "key": "gmail-attachment",
+    "value_json": "{\"enabled\":false,\"maxBytes\":10485760}"
+  },
+  {
+    "key": "gmail-write",
+    "value_json": "{\"enabled\":false,\"writesEnabled\":false,\"actions\":[\"send\",\"draft\"],\"recipients\":[]}"
+  },
+  {
+    "key": "calendar",
+    "value_json": "{\"enabled\":false,\"source\":\"calendar-primary\",\"calendarIds\":[],\"syncToken\":true,\"agendaDays\":31,\"importTrc\":false}"
+  },
+  {
+    "key": "calendar-agenda",
+    "value_json": "{\"enabled\":false,\"source\":\"calendar-agenda\",\"calendarIds\":[],\"syncToken\":false,\"agendaDays\":31,\"importTrc\":false}"
+  },
+  {
+    "key": "calendar-write",
+    "value_json": "{\"enabled\":false,\"writesEnabled\":false,\"actions\":[\"create\",\"update\"],\"calendarIds\":[]}"
+  },
+  {
+    "key": "tasks",
+    "value_json": "{\"enabled\":false,\"source\":\"tasks-primary\",\"taskListIds\":[],\"importTrc\":false}"
+  },
+  {
+    "key": "tasks-write",
+    "value_json": "{\"enabled\":false,\"writesEnabled\":false,\"actions\":[\"create\",\"update\",\"complete\"],\"taskListIds\":[]}"
+  },
+  {
+    "key": "dav",
+    "value_json": "{\"enabled\":false,\"user\":\"\",\"directories\":[],\"exclude\":[],\"extensions\":[\".md\",\".pdf\",\".docx\",\".xlsx\",\".txt\"],\"maxFileBytes\":20971520}"
+  },
+  {
+    "key": "dav-download",
+    "value_json": "{\"enabled\":false,\"user\":\"\",\"directories\":[],\"maxBytes\":20971520}"
+  },
+  {
+    "key": "dav-export",
+    "value_json": "{\"enabled\":false,\"writesEnabled\":false,\"actions\":[\"put\"],\"user\":\"\",\"directory\":\"\"}"
+  },
+  {
+    "key": "talk",
+    "value_json": "{\"enabled\":false,\"source\":\"talk-primary\",\"rooms\":[],\"importTrc\":false}"
+  },
+  {
+    "key": "talk-write",
+    "value_json": "{\"enabled\":false,\"writesEnabled\":false,\"actions\":[\"send\"],\"rooms\":[]}"
+  },
+  {
+    "key": "couch",
+    "value_json": "{\"enabled\":false,\"database\":\"\",\"importTrc\":false}"
+  },
+  {
+    "key": "home",
+    "value_json": "{\"enabled\":false,\"entities\":[],\"importTrc\":false}"
+  },
+  {
+    "key": "ha-write",
+    "value_json": "{\"enabled\":false,\"writesEnabled\":false,\"actions\":[\"service\"],\"services\":[],\"entities\":[]}"
+  },
+  {
+    "key": "stocks",
+    "value_json": "{\"enabled\":false,\"historyDays\":730,\"importTrc\":false,\"symbols\":[{\"symbol\":\"NVDA\",\"name\":\"NVIDIA\",\"category\":\"stock\",\"group\":\"ai\"},{\"symbol\":\"AMD\",\"name\":\"AMD\",\"category\":\"stock\",\"group\":\"ai\"},{\"symbol\":\"MSFT\",\"name\":\"Microsoft\",\"category\":\"stock\",\"group\":\"tech\"},{\"symbol\":\"GOOGL\",\"name\":\"Alphabet\",\"category\":\"stock\",\"group\":\"tech\"},{\"symbol\":\"IONQ\",\"name\":\"IonQ\",\"category\":\"stock\",\"group\":\"quantum\"},{\"symbol\":\"RGTI\",\"name\":\"Rigetti Computing\",\"category\":\"stock\",\"group\":\"quantum\"},{\"symbol\":\"QBTS\",\"name\":\"D-Wave Quantum\",\"category\":\"stock\",\"group\":\"quantum\"}]}"
+  },
+  {
+    "key": "kraken",
+    "value_json": "{\"enabled\":false,\"importTrc\":false,\"symbols\":[{\"symbol\":\"BTC\",\"name\":\"Bitcoin\",\"pair\":\"XBTUSD\",\"currency\":\"USD\",\"category\":\"crypto\",\"exchange\":\"Kraken\"},{\"symbol\":\"ETH\",\"name\":\"Ethereum\",\"pair\":\"ETHUSD\",\"currency\":\"USD\",\"category\":\"crypto\",\"exchange\":\"Kraken\"},{\"symbol\":\"SOL\",\"name\":\"Solana\",\"pair\":\"SOLUSD\",\"currency\":\"USD\",\"category\":\"crypto\",\"exchange\":\"Kraken\"}]}"
+  },
+  {
+    "key": "ecb",
+    "value_json": "{\"enabled\":false,\"currencies\":[\"USD\"],\"historyDays\":740,\"importTrc\":false}"
+  },
+  {
+    "key": "metals",
+    "value_json": "{\"enabled\":false,\"importTrc\":false,\"symbols\":[{\"symbol\":\"XAU\",\"name\":\"Gold\",\"category\":\"metal\"},{\"symbol\":\"XAG\",\"name\":\"Silber\",\"category\":\"metal\"}]}"
+  },
+  {
+    "key": "metal-history",
+    "value_json": "{\"enabled\":false,\"importTrc\":false,\"symbols\":[{\"symbol\":\"XAU\",\"name\":\"Gold\",\"category\":\"metal\"},{\"symbol\":\"XAG\",\"name\":\"Silber\",\"category\":\"metal\"}]}"
+  },
+  {
+    "key": "dealer",
+    "value_json": "{\"enabled\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "news",
+    "value_json": "{\"enabled\":false,\"keywords\":[],\"limit\":30,\"importTrc\":false,\"feeds\":[{\"name\":\"OpenAI News\",\"url\":\"https://openai.com/news/rss.xml\",\"category\":\"ai\"},{\"name\":\"Google DeepMind\",\"url\":\"https://deepmind.google/blog/rss.xml\",\"category\":\"ai\"},{\"name\":\"Microsoft Research\",\"url\":\"https://www.microsoft.com/en-us/research/feed/\",\"category\":\"tech\"},{\"name\":\"Ollama Releases\",\"url\":\"https://github.com/ollama/ollama/releases.atom\",\"category\":\"local-ai\"},{\"name\":\"ROCm Releases\",\"url\":\"https://github.com/ROCm/rocm-systems/releases.atom\",\"category\":\"amd\"},{\"name\":\"TensorRT-LLM Releases\",\"url\":\"https://github.com/NVIDIA/TensorRT-LLM/releases.atom\",\"category\":\"nvidia\"},{\"name\":\"Anthropic Claude Code Releases\",\"url\":\"https://github.com/anthropics/claude-code/releases.atom\",\"category\":\"local-ai\"},{\"name\":\"EZB-Pressemitteilungen\",\"url\":\"https://www.ecb.europa.eu/rss/press.html\",\"category\":\"economy\"},{\"name\":\"Federal Reserve Pressemitteilungen\",\"url\":\"https://www.federalreserve.gov/feeds/press_all.xml\",\"category\":\"economy\"}]}"
+  },
+  {
+    "key": "quantum-news",
+    "value_json": "{\"enabled\":false,\"keywords\":[\"quantum\",\"qubit\",\"ionq\",\"rigetti\",\"annealing\"],\"limit\":30,\"importTrc\":false,\"feeds\":[{\"name\":\"Qiskit Releases\",\"url\":\"https://github.com/Qiskit/qiskit/releases.atom\",\"category\":\"quantum\"}]}"
+  },
+  {
+    "key": "research",
+    "value_json": "{\"enabled\":false,\"limit\":25,\"importTrc\":false,\"topics\":[{\"name\":\"KI\",\"query\":\"cat:cs.AI\"},{\"name\":\"Quantum\",\"query\":\"cat:quant-ph\"},{\"name\":\"Embeddings und RAG\",\"query\":\"cat:cs.CL AND (ti:retrieval OR ti:embedding)\"},{\"name\":\"Lokale Inferenz\",\"query\":\"cat:cs.LG AND (ti:quantization OR ti:inference)\"},{\"name\":\"Modellarchitekturen\",\"query\":\"cat:cs.LG AND (ti:architecture OR abs:architecture)\"},{\"name\":\"Effiziente KI-Hardware\",\"query\":\"cat:cs.AR AND (ti:inference OR abs:accelerator)\"}]}"
+  },
+  {
+    "key": "reports",
+    "value_json": "{\"enabled\":false,\"importTrc\":false,\"sections\":[],\"importantRooms\":[],\"maxRows\":12,\"maxCacheRows\":24000,\"format\":\"markdown\",\"delivery\":null,\"priority\":\"normal\"}"
+  },
+  {
+    "key": "smtp-write",
+    "value_json": "{\"enabled\":false,\"writesEnabled\":false,\"actions\":[\"send\"],\"from\":\"\",\"recipients\":[]}"
+  },
+  {
+    "key": "dispatch",
+    "value_json": "{\"enabled\":false,\"fallbackOrder\":[]}"
+  },
+  {
+    "key": "health",
+    "value_json": "{\"enabled\":false,\"services\":[],\"importTrc\":false}"
+  },
+  {
+    "key": "ha-health",
+    "value_json": "{\"enabled\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "nextcloud-health",
+    "value_json": "{\"enabled\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "talk-health",
+    "value_json": "{\"enabled\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "couch-health",
+    "value_json": "{\"enabled\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "hermes-health",
+    "value_json": "{\"enabled\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "ollama-health",
+    "value_json": "{\"enabled\":false,\"importTrc\":false}"
+  },
+  {
+    "key": "alerts",
+    "value_json": "{\"enabled\":false,\"minutes\":120,\"recovery\":false,\"maxAgeHours\":72,\"sourceMaxAgeHours\":{},\"delivery\":{}}"
+  },
+  {
+    "key": "maintenance",
+    "value_json": "{\"enabled\":false,\"cacheDays\":750,\"personalDays\":30,\"sentDays\":14,\"eventDays\":30,\"deliveryDays\":180,\"maxCacheRows\":24000,\"warnBytes\":146800640,\"dataTableLimitBytes\":209715200,\"purgeLimit\":250}"
+  }
+]

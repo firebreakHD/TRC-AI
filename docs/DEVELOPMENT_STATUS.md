@@ -1,7 +1,13 @@
 # Entwicklungsstand und Fortsetzung
 
-Version 0.1.0 liefert ein Management-Fundament mit PostgreSQL und Qdrant. Bestandsrepos wurden lesend gesichtet. Der veröffentlichte n8n-Vertrag umfasst die tatsächlich implementierten Pfade für Status und Datenimporte. Diese Fassung führt keine RAG- oder Agentenfunktionen aus.
+Version 0.2.0 führt das 0.1.0-Fundament, die Netzwerk-Erweiterung aus PR #3 und das n8n-Paket aus PR #4 in einem Backend-Entwicklungsbranch zusammen. Ein amd64-Add-on enthält Gateway, PostgreSQL, den Qdrant-Index und den lokalen Worker mit OCR und Docling. Status- und Schreibvertrag für n8n bleiben kompatibel. Lokale Dokumente und Uploads können indexiert und mit Quellen durchsucht werden.
 
-Nach Bereitstellung der freigegebenen RAG-Dateien zuerst deren AGENTS.md und Compose-Overrides lesen. Service-Entrypoints, Schnittstellen, Migrationen und Lizenz je Komponente zur Matrix hinzufügen. An vorhandenen Fixtures Embedding-Dimension und Qdrant-Verträge reproduzieren, bevor eine Collection oder Migration entworfen wird. Danach die kleinste durchgängige Markdown-Verarbeitung mit Update, Quellenreferenz und Rücksicherung in einem neuen Datenvolume aufbauen.
+Nächster Schritt ist ein Test auf einer separaten HAOS-Instanz oder in einem vorab gesicherten Testfenster am Fujitsu. Admin-Ingress, die interne Ollama-Route mit BGE-M3 und einem bestehenden Antwortmodell sowie die Rücksicherung über den Supervisor prüfen. Die n8n-Installation des Betreibers umfasst nach dessen Bericht Version 2.47.3, 53 Workflows, sechs Data Tables und 21 manuelle Fachtests. Die Generator-Korrektur für ISO-Daten lässt sich bei einem späteren Paketupdate gezielt übernehmen.
 
-Sobald eine getrennte HAOS-Testinstanz zugänglich ist, 0.1.0 lokal installieren. Ingress, Schlüsselwechsel, HAOS-Backup sowie Neuinstallation und Wiederherstellung in dieser Instanz protokollieren. Danach unabhängige HA-/Ollama- und Hermes-Konversationen bei gestopptem Add-on prüfen. Die [Abnahmeübersicht](TEST_REPORT.md) dokumentiert die verbleibenden Tests.
+Danach Nextcloud-Dateiquellen und lokal synchronisierte Obsidian-Vaults mit eigenen Zugangsregeln anbinden. JARVIS und FRIDAY sind als spätere Assistentenprofile vorbereitet. Beeper folgt nach der Abnahme der übrigen Integrationen.
+
+[Testbericht](TEST_REPORT.md) · [Offene Punkte](OPEN_ISSUES.md)
+
+0.3.0 erweitert das veröffentlichte Backend um Chat, Assistenten, Chat-Anhänge, Routing und die gemeinsame Oberfläche. Der nächste Integrationsschritt ist die Abnahme mit dem vorhandenen Ollama und Home Assistant auf dem Fujitsu. Danach folgen die geplanten externen Dokumentquellen und Sprachkanäle.
+
+0.3.1 bündelt die Chat-Navigation in einer Kopfzeile. Auf Smartphones öffnet eine Wischgeste nach rechts am linken Rand den Verlauf. Eine Wischgeste im Verlauf nach links schließt ihn. Nächster Schritt ist die Kontrolle der Gesten und der Bildschirmtastatur in der Home-Assistant-App am iPhone.
