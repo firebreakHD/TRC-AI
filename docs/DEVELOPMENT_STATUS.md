@@ -9,3 +9,5 @@ Danach Nextcloud-Dateiquellen und lokal synchronisierte Obsidian-Vaults mit eige
 [Testbericht](TEST_REPORT.md) · [Offene Punkte](OPEN_ISSUES.md)
 
 0.3.0 erweitert das veröffentlichte Backend um Chat, Assistenten, Chat-Anhänge, Routing und die gemeinsame Oberfläche. Der nächste Integrationsschritt ist die Abnahme mit dem vorhandenen Ollama und Home Assistant auf dem Fujitsu. Danach folgen die geplanten externen Dokumentquellen und Sprachkanäle.
+
+0.3.1 bündelt die Chat-Navigation in einer Kopfzeile. Auf Smartphones öffnet eine Wischgeste nach rechts am linken Rand den Verlauf. Eine Wischgeste im Verlauf nach links schließt ihn. Nächster Schritt ist die Kontrolle der Gesten und der Bildschirmtastatur in der Home-Assistant-App am iPhone.

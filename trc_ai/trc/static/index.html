@@ -2,32 +2,52 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
   <title>TRC Intelligence</title>
-  <link rel="stylesheet" href="./ui/style.css">
-  <script src="./ui/app.js" defer></script>
-  <script src="./ui/intelligence.js" defer></script>
+  <link rel="stylesheet" href="./ui/style.css?v=0.3.1">
+  <script src="./ui/app.js?v=0.3.1" defer></script>
+  <script src="./ui/intelligence.js?v=0.3.1" defer></script>
 </head>
 <body>
-  <button type="button" id="sidebar-toggle" aria-expanded="false" aria-controls="sidebar" aria-label="Seitenleiste ein- oder ausblenden" hidden>☰</button>
-  <aside id="sidebar" hidden>
-    <div class="sidebar-heading"><p class="brand">TRC Intelligence</p></div>
-    <button id="new-chat" type="button">＋ Neuer Chat</button>
-    <label class="visually-hidden" for="chat-search">Chats durchsuchen</label>
-    <input id="chat-search" type="search" placeholder="Chats durchsuchen" maxlength="150">
-    <nav aria-label="Arbeit">
-      <a href="#chat">Chat</a>
-      <a href="#dokumente" data-admin>Dokumente</a>
-      <a href="#wissen" data-admin>Wissensdatenbank</a>
-    </nav>
-    <details id="history-shell" open>
-      <summary>Chatverlauf</summary>
-      <label class="check"><input type="checkbox" id="archived-chats"> Archiv anzeigen</label>
+  <svg class="visually-hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6M11 13l1-4 6-6 3 3-6 6-4 1Z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9m-9 4h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10l-7-7Z"/><path d="M13 3v7h7M8 14h8m-8 3h6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1v14"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h2.5m5 0H20M4 17h8.5m5 0H20"/><circle cx="9" cy="7" r="2.5"/><circle cx="15" cy="17" r="2.5"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-attach" viewBox="0 0 24 24"><path d="m8 13 6-6a2.5 2.5 0 0 1 4 3l-8 8a4 4 0 0 1-6-6L13 3"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c0 5-4 9-9 9 5 0 9 4 9 9 0-5 4-9 9-9-5 0-9-4-9-9Z"/></symbol>
+  </svg>
+  <div id="sidebar-backdrop" aria-hidden="true" hidden></div>
+  <aside id="sidebar" aria-label="Verlauf und Navigation" tabindex="-1" hidden>
+    <div class="history-toolbar">
+      <label class="history-search" for="chat-search">
+        <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+        <span class="visually-hidden">Chats durchsuchen</span>
+        <input id="chat-search" type="search" placeholder="Chats suchen" maxlength="150">
+      </label>
+      <label class="archive-toggle icon-button" title="Archiv anzeigen">
+        <input type="checkbox" id="archived-chats" class="visually-hidden" aria-label="Archiv anzeigen">
+        <svg class="icon" aria-hidden="true"><use href="#i-archive"/></svg>
+      </label>
+    </div>
+    <div id="history-shell" aria-label="Chatverlauf">
+      <p id="history-empty" hidden></p>
       <div id="history-list"></div>
       <button id="history-more" type="button" hidden>Weitere Chats</button>
-    </details>
+    </div>
+    <nav class="library-nav" aria-label="Wissen" data-admin>
+      <a href="#dokumente"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>Dokumente</a>
+      <a href="#wissen"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>Wissensdatenbank</a>
+    </nav>
     <details id="administration" data-admin>
-      <summary>Administration</summary>
+      <summary><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>Verwaltung<svg class="icon chevron" aria-hidden="true"><use href="#i-down"/></svg></summary>
       <nav aria-label="Administration">
         <a href="#uebersicht">Übersicht</a>
         <a href="#betrieb">Dienste, Datenbanken und Modelle</a>
@@ -37,18 +57,26 @@
       </nav>
     </details>
     <footer class="sidebar-footer">
-      <span id="operator-label"></span>
       <label class="visually-hidden" for="ui-theme">Darstellung</label>
-      <select id="ui-theme" title="Darstellung"><option value="system">System</option><option value="light">Hell</option><option value="dark">Dunkel</option></select>
+      <select id="ui-theme" title="Darstellung"><option value="system">Systemdesign</option><option value="light">Hell</option><option value="dark">Dunkel</option></select>
       <button type="button" id="logout">Abmelden</button>
     </footer>
   </aside>
   <main>
+    <header id="app-bar" hidden>
+      <button type="button" id="sidebar-toggle" class="icon-button" aria-expanded="false" aria-controls="sidebar" aria-label="Verlauf öffnen" title="Verlauf öffnen">
+        <svg class="icon" aria-hidden="true"><use href="#i-panel"/></svg>
+      </button>
+      <span id="app-bar-label" aria-hidden="true">Chat</span>
+      <button type="button" id="new-chat" class="icon-button" aria-label="Neuer Chat" title="Neuer Chat">
+        <svg class="icon" aria-hidden="true"><use href="#i-edit"/></svg>
+      </button>
+    </header>
     <section id="login" aria-labelledby="login-title">
       <p class="login-brand">TRC Intelligence</p>
-        <h1 id="login-title">Anmelden</h1>
+      <h1 id="login-title">Anmelden</h1>
       <form id="login-form">
-        <label for="token">Administrations-Token</label>
+        <label for="token">Zugriffstoken</label>
         <input id="token" type="password" autocomplete="off" minlength="32" maxlength="128" required>
         <button>Anmelden</button>
       </form>
@@ -61,12 +89,10 @@
 
       </div>
       <section id="chat" aria-labelledby="chat-title">
-        <header class="chat-header">
-          <h1 id="chat-title">Neuer Chat</h1>
-          <button type="button" id="chat-older" hidden>Ältere Nachrichten</button>
-        </header>
+        <h1 class="visually-hidden" id="chat-title">Chat</h1>
         <div id="chat-scroll" tabindex="0" aria-label="Unterhaltung">
-          <div id="chat-empty"><span>TRC Intelligence</span><h2>Wobei kann ich helfen?</h2></div>
+          <button type="button" id="chat-older" hidden>Ältere Nachrichten</button>
+          <div id="chat-empty"><div class="chat-emblem"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg></div><h2>Wobei kann ich helfen?</h2></div>
           <div id="chat-messages" aria-live="polite"></div>
         </div>
         <div class="composer-region">
@@ -75,14 +101,19 @@
             <label class="visually-hidden" for="chat-input">Nachricht</label>
             <textarea id="chat-input" rows="2" maxlength="3000" placeholder="Schreib eine Nachricht …"></textarea>
             <div class="composer-actions">
-              <button id="attach-button" type="button" aria-label="Dokument anhängen" title="Dokument anhängen">＋</button>
+              <button id="attach-button" class="icon-button" type="button" aria-label="Dokument anhängen" title="Dokument anhängen"><svg class="icon" aria-hidden="true"><use href="#i-attach"/></svg></button>
               <input type="file" id="chat-picker" hidden multiple accept=".pdf,.md,.txt,.docx,.xlsx,.csv,.tsv,.png,.jpg,.jpeg,.tif,.tiff">
-              <label class="visually-hidden" for="chat-profile">Assistent</label>
-              <select id="chat-profile"></select>
-              <label class="visually-hidden" for="chat-mode">Anfrage-Modus</label>
-              <select id="chat-mode"></select>
-              <button id="chat-stop" type="button" hidden>Abbrechen</button>
-              <button id="chat-send" type="submit">Senden ↑</button>
+              <details id="chat-options">
+                <summary><span id="chat-option-label">Assistent</span><svg class="icon" aria-hidden="true"><use href="#i-down"/></svg></summary>
+                <div class="chat-option-panel">
+                  <label for="chat-profile">Assistent</label>
+                  <select id="chat-profile"></select>
+                  <label for="chat-mode">Anfrage-Modus</label>
+                  <select id="chat-mode"></select>
+                </div>
+              </details>
+              <button id="chat-stop" class="icon-button" type="button" aria-label="Antwort stoppen" title="Antwort stoppen" hidden><svg class="icon" aria-hidden="true"><use href="#i-stop"/></svg></button>
+              <button id="chat-send" class="icon-button" type="submit" aria-label="Senden" title="Senden"><svg class="icon" aria-hidden="true"><use href="#i-send"/></svg></button>
             </div>
           </form>
           <p id="chat-notice" role="status"></p>
@@ -90,7 +121,7 @@
         <div id="chat-drop" hidden>Dateien hier ablegen</div>
       </section>
       <section id="routing" data-admin aria-labelledby="routing-title">
-        <h1 id="routing-title">Routing und Assistenten</h1>
+        <h1 class="visually-hidden" id="routing-title">Routing und Assistenten</h1>
         <p id="route-availability"></p>
         <form id="routing-form">
           <label>Kontext-Nachrichtenpaare <input id="routing-turns" type="number" min="1" max="20" required></label>
@@ -119,7 +150,7 @@
         <h2>Letzte Routingergebnisse</h2><ul id="routing-recent"></ul>
       </section>
       <section id="uebersicht" data-admin aria-labelledby="overview-title">
-        <h1 id="overview-title">Systemübersicht</h1>
+        <h1 class="visually-hidden" id="overview-title">Systemübersicht</h1>
         <dl>
           <div><dt>TRC-AI</dt><dd id="version"></dd></div>
           <div><dt>PostgreSQL</dt><dd id="database"></dd></div>
@@ -131,7 +162,7 @@
         </dl>
       </section>
       <section id="system" data-admin aria-labelledby="system-title">
-        <h1 id="system-title">System</h1>
+        <h1 class="visually-hidden" id="system-title">Systemeinstellungen</h1>
         <form id="preferences">
           <label id="refresh-label" for="refresh">Aktualisierungsintervall</label>
           <input id="refresh" type="number" step="1" required aria-describedby="refresh-description">
@@ -141,7 +172,7 @@
         </form>
       </section>
       <section id="wissen" data-admin aria-labelledby="knowledge-title">
-        <h1 id="knowledge-title">Wissensdatenbank</h1>
+        <h1 class="visually-hidden" id="knowledge-title">Wissensdatenbank</h1>
         <form id="knowledge-query">
           <label>Frage<textarea id="knowledge-question" required minlength="3" maxlength="1500" rows="3"></textarea></label>
           <label>Profil<select id="knowledge-profile"><option value="general">Wissensdatenbank</option><option value="jarvis">JARVIS</option><option value="friday">FRIDAY</option></select></label>
@@ -153,7 +184,7 @@
         <ol id="knowledge-sources"></ol>
       </section>
       <section id="dokumente" data-admin aria-labelledby="documents-title">
-        <h1 id="documents-title">Dokumente</h1>
+        <h1 class="visually-hidden" id="documents-title">Dokumente</h1>
         <form id="document-upload">
           <label>Datei <input type="file" id="document-file" required accept=".md,.txt,.pdf,.docx,.xlsx,.csv,.tsv,.png,.jpg,.jpeg,.tif,.tiff"></label>
           <button>Hochladen und vormerken</button>
@@ -165,7 +196,7 @@
         <button type="button" id="documents-next" hidden>Weitere Dokumente</button>
       </section>
       <section id="betrieb" data-admin aria-labelledby="services-title">
-        <h1 id="services-title">Dienste und Datenbanken</h1>
+        <h1 class="visually-hidden" id="services-title">Dienste, Datenbanken und Modelle</h1>
         <dl>
           <div><dt>PostgreSQL</dt><dd id="backend-db"></dd></div>
           <div><dt>Qdrant</dt><dd id="backend-vector"></dd></div>
@@ -191,7 +222,7 @@
         <p>Kalte Add-on-Sicherung und Wiederherstellung in Home Assistant ausführen. Für den lokalen Ordner unter /share eine separate Sicherung erstellen.</p>
       </section>
       <section id="netzwerk" data-admin aria-labelledby="network-title">
-        <h1 id="network-title">Netzwerk und Integrationen</h1>
+        <h1 class="visually-hidden" id="network-title">Netzwerk und Integrationen</h1>
         <h2>Add-on-Startkonfiguration</h2>
         <p class="hint">In Home Assistant unter Konfiguration ändern und das Add-on neu starten. Den Host-Port und Ingress verwaltet Home Assistant.</p>
         <dl id="network-startup"></dl>

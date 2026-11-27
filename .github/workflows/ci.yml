@@ -28,7 +28,7 @@ jobs:
           bash -n trc_ai/run.sh
           bash -n tests/smoke.sh
       - name: Build Linux amd64 app
-        run: docker build --platform linux/amd64 -t trc-ai:0.3.0 trc_ai
+        run: docker build --platform linux/amd64 -t trc-ai:0.3.1 trc_ai
       - name: Build the 0.2.0 upgrade fixture
         run: |
           baseline_dir=$(mktemp -d)
@@ -81,7 +81,7 @@ jobs:
           unzip -tq trc-ai-n8n-contract.zip
           sha256sum trc-ai-haos-amd64.zip trc-ai-n8n-contract.zip > SHA256SUMS
           cat > release-notes.md <<NOTES
-          Entwicklungsfassung für HAOS amd64 mit TRC Intelligence, Chatverlauf, JARVIS und FRIDAY, Dokumentanhängen und kompatibler Workflow-API.
+          Entwicklungsfassung für HAOS amd64 mit überarbeiteter TRC-Intelligence-Oberfläche. Die Kopfzeile bündelt Verlauf und neue Chats. Auf Touch-Geräten lässt sich der Verlauf per Wischgeste öffnen und schließen.
 
           - \`trc-ai-haos-amd64.zip\` enthält den vollständigen Quellordner für ein lokales HAOS-Add-on mit Dockerfile und gesperrten Abhängigkeiten. Das vorhandene Ollama wird über die interne Adresse eingebunden.
           - \`trc-ai-n8n-contract.zip\` enthält OpenAPI, Vertrag, Beispiel und n8n-Anleitung.

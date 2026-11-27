@@ -25,7 +25,7 @@ HAOS-Ingress belegt keinen HAOS-Host-Port. Unter **Netzwerk** kannst du einen fr
 ## Lokale Prüfung
 
 ```sh
-docker build --platform linux/amd64 -t trc-ai:0.3.0 trc_ai
+docker build --platform linux/amd64 -t trc-ai:0.3.1 trc_ai
 bash tests/smoke.sh
 ```
 

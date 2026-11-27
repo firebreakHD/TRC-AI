@@ -27,7 +27,7 @@ from .rag import config as knowledge_config
 from .rag import http as knowledge_http
 from .intelligence import api as intelligence_http, store as intelligence_store
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 MAX_BODY = 512 * 1024
 STATIC = Path(__file__).parent / "static"
 logger = logging.getLogger(__name__)

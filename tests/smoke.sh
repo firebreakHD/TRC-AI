@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-image=${1:-trc-ai:0.3.0}
+image=${1:-trc-ai:0.3.1}
 backup_tool=${TRC_TEST_BACKUP_TOOL_IMAGE:-busybox:1.37}
 instance="trc-test-$$-$RANDOM"
 data="$instance-data"

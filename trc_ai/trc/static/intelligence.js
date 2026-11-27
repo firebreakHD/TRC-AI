@@ -39,31 +39,94 @@
     localStorage.setItem("trc-theme", event.target.value);
   });
 
-  function setSidebar(open) {
-    document.body.classList.toggle("sidebar-collapsed", !open);
-    byId("sidebar-toggle").setAttribute("aria-expanded", String(open));
-  }
   const mobile = matchMedia("(max-width: 48rem)");
-  setSidebar(!mobile.matches && localStorage.getItem("trc-sidebar") !== "closed");
-  byId("sidebar-toggle").addEventListener("click", () => {
-    const open = document.body.classList.contains("sidebar-collapsed");
-    setSidebar(open);
-    if (!mobile.matches) localStorage.setItem("trc-sidebar", open ? "open" : "closed");
+  const sidebar = byId("sidebar");
+  const sidebarToggle = byId("sidebar-toggle");
+  const sidebarBackdrop = byId("sidebar-backdrop");
+  const chatOptions = byId("chat-options");
+  let sidebarOpen = false;
+
+  function updateTitle() {
+    const title = detail?.chat.title || "Chat";
+    byId("chat-title").textContent = title;
+    const sectionTitle = byId(currentPage).querySelector("h1").textContent;
+    byId("app-bar-label").textContent = mobile.matches && sidebarOpen ? "Verlauf" : sectionTitle;
+  }
+
+  function setSidebar(open, moveFocus = false) {
+    sidebarOpen = open;
+    const overlayOpen = open && mobile.matches;
+    const label = open ? "Verlauf schließen" : "Verlauf öffnen";
+    document.body.classList.toggle("sidebar-collapsed", !open);
+    sidebar.inert = !open;
+    sidebarBackdrop.hidden = !overlayOpen;
+    byId("workspace").inert = overlayOpen;
+    sidebarToggle.setAttribute("aria-expanded", String(open));
+    sidebarToggle.setAttribute("aria-label", label);
+    sidebarToggle.title = label;
+    sidebarToggle.querySelector("use").setAttribute("href", overlayOpen ? "#i-close" : "#i-panel");
+    if (overlayOpen) chatOptions.open = false;
+    if (moveFocus) (overlayOpen ? sidebar : sidebarToggle).focus({preventScroll:true});
+    updateTitle();
+  }
+
+  function restoreSidebar() {
+    setSidebar(Boolean(identity) && !mobile.matches && localStorage.getItem("trc-sidebar") !== "closed");
+  }
+  restoreSidebar();
+  sidebarToggle.addEventListener("click", () => {
+    setSidebar(!sidebarOpen, mobile.matches);
+    if (!mobile.matches) localStorage.setItem("trc-sidebar", sidebarOpen ? "open" : "closed");
   });
-  mobile.addEventListener("change", event => setSidebar(!event.matches && localStorage.getItem("trc-sidebar") !== "closed"));
-  byId("sidebar").addEventListener("keydown", event => {
-    if (event.key === "Escape" && mobile.matches) {
-      setSidebar(false);
-      byId("sidebar-toggle").focus();
-    }
+  mobile.addEventListener("change", restoreSidebar);
+  sidebarBackdrop.addEventListener("click", () => setSidebar(false, true));
+  sidebar.addEventListener("click", event => {
+    if (mobile.matches && event.target.closest("a[href^='#']")) setSidebar(false, true);
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    if (chatOptions.open) {
+      chatOptions.open = false;
+      chatOptions.querySelector("summary").focus();
+    } else if (sidebarOpen && mobile.matches) setSidebar(false, true);
+  });
+  document.addEventListener("pointerdown", event => {
+    if (!chatOptions.contains(event.target)) chatOptions.open = false;
   });
 
-  for (const id of ["administration", "history-shell"]) {
-    const element = byId(id);
-    const saved = localStorage.getItem("trc-" + id);
-    if (saved !== null) element.open = saved === "open";
-    element.addEventListener("toggle", () => localStorage.setItem("trc-" + id, element.open ? "open" : "closed"));
+  let swipe;
+  document.addEventListener("touchstart", event => {
+    swipe = undefined;
+    if (!identity || !mobile.matches || event.touches.length !== 1 ||
+        event.target.closest("input, textarea, select, summary, pre, table")) return;
+    const touch = event.touches[0];
+    const opening = !sidebarOpen && currentPage === "chat" && touch.clientX >= 12 && touch.clientX <= 42;
+    if (opening || (sidebarOpen && sidebar.contains(event.target))) {
+      swipe = {id:touch.identifier, x:touch.clientX, y:touch.clientY, opening};
+    }
+  }, {passive:true});
+  document.addEventListener("touchcancel", () => { swipe = undefined; }, {passive:true});
+  document.addEventListener("touchend", event => {
+    if (!swipe) return;
+    const touch = Array.from(event.changedTouches).find(item => item.identifier === swipe.id);
+    if (touch) {
+      const dx = (touch.clientX - swipe.x) * (swipe.opening ? 1 : -1);
+      const dy = Math.abs(touch.clientY - swipe.y);
+      if (dx >= 64 && dy < dx * .55) setSidebar(swipe.opening, true);
+    }
+    swipe = undefined;
+  }, {passive:true});
+
+  const viewport = window.visualViewport;
+  function fitViewport() {
+    const height = mobile.matches && viewport?.scale === 1 && viewport.height < window.innerHeight - 80
+      ? Math.round(viewport.height) + "px" : "";
+    document.documentElement.style.setProperty("--viewport-height", height);
   }
+  viewport?.addEventListener("resize", fitViewport);
+  mobile.addEventListener("change", fitViewport);
+
+  // Keep the conversation list visible. Management can be expanded for the current visit.
 
   function group(date) {
     const when = new Date(date);
@@ -88,6 +151,10 @@
       if (turn !== historySequence || !identity) return;
       const list = byId("history-list");
       if (!append) list.replaceChildren();
+      const empty = byId("history-empty");
+      empty.hidden = append || result.chats.length > 0;
+      empty.textContent = byId("chat-search").value ? "Keine passenden Chats" :
+        byId("archived-chats").checked ? "Keine archivierten Chats" : "Hier erscheinen deine Chats";
       let label = append ? list.lastElementChild?.dataset.group : "";
       for (const row of result.chats) {
         const name = group(row.updated);
@@ -112,7 +179,7 @@
             const title = prompt("Neuer Chat-Titel", row.title)?.trim();
             if (title) await modify(row.id, {title});
           }),
-          button(row.archived ? "Wieder öffnen" : "Archivieren", () => void modify(row.id, {archived: !row.archived})),
+          button(row.archived ? "Aus Archiv holen" : "Archivieren", () => void modify(row.id, {archived: !row.archived})),
           button("Löschen", async () => {
             if (!confirm("Diesen Chat samt Nachrichten und privaten Anhängen löschen?")) return;
             try {
@@ -144,6 +211,7 @@
     input.value = "";
     input.rows = 2;
     notice.textContent = "";
+    chatOptions.open = false;
     render();
   }
 
@@ -154,10 +222,10 @@
       selected = id;
     }
     if (location.hash !== "#chat") location.hash = "#chat";
-    if (mobile.matches) setSidebar(false);
+    if (mobile.matches && sidebarOpen) setSidebar(false, true);
     await refreshDetail();
     refreshHistory();
-    input.focus();
+    if (!mobile.matches) input.focus();
   }
 
   async function create(documentPath = '') {
@@ -176,30 +244,46 @@
     } catch (error) { reportError(error); }
   }
 
-  byId("new-chat").addEventListener("click", async () => {
+  byId("new-chat").addEventListener("click", () => {
     if (sending) return;
     resetChat();
-    try {
-      await create();
-      await pick(selected);
-    } catch (error) { reportError(error); }
+    selections(identity.profiles, identity.modes, {profile:"general", mode:"auto"});
+    refreshHistory();
+    if (location.hash !== "#chat") location.hash = "#chat";
+    if (mobile.matches && sidebarOpen) setSidebar(false);
+    input.focus();
   });
   byId("chat-profile").addEventListener("change", event => {
+    updateOptionsLabel();
     if (selected) void modify(selected, {profile:event.target.value});
   });
   byId("chat-mode").addEventListener("change", event => {
+    updateOptionsLabel();
     if (selected) void modify(selected, {mode:event.target.value});
   });
 
+  function updateOptionsLabel() {
+    const profile = byId("chat-profile");
+    const mode = byId("chat-mode").value;
+    const label = profile.value === "general" ? "Assistent" : profile.selectedOptions[0]?.textContent || "Assistent";
+    byId("chat-option-label").textContent = mode && mode !== "auto" ? label + " · " + modes[mode] : label;
+  }
+
+  let optionSignature;
   function selections(profiles, available, row) {
     const p = byId("chat-profile"), m = byId("chat-mode");
     const chosenProfile = row?.profile || p.value || "general";
     const chosenMode = row?.mode || m.value || "auto";
-    p.replaceChildren(...Object.entries(profiles).map(([key,value]) => choice(value.name,key)));
-    m.replaceChildren(...Object.entries(modes).map(([key,value]) =>
-      choice(value + (available[key] === false ? " · nicht eingerichtet" : ""),key,available[key] === false)));
+    const signature = JSON.stringify([profiles, available]);
+    if (signature !== optionSignature) {
+      p.replaceChildren(...Object.entries(profiles).map(([key,value]) => choice(value.name,key)));
+      m.replaceChildren(...Object.entries(modes).map(([key,value]) =>
+        choice(value + (available[key] === false ? " · nicht eingerichtet" : ""),key,available[key] === false)));
+      optionSignature = signature;
+    }
     p.value = chosenProfile;
     m.value = chosenMode;
+    updateOptionsLabel();
   }
 
   function inline(parent, text, sources) {
@@ -281,7 +365,12 @@
       const text = document.createElement("p");
       text.textContent = source.excerpt;
       details.append(heading,text);
-      if (source.path && identity.role === "admin") details.append(button("Dokumentbibliothek öffnen", () => { location.hash = "#dokumente"; }));
+      if (source.path) {
+        const path = document.createElement("small");
+        path.className = "source-path";
+        path.textContent = source.path;
+        details.append(path);
+      }
       sourceGroup.append(details);
       sources.set(id,details);
     }
@@ -320,7 +409,7 @@
     const active = messages.at(-1);
     const live = active?.state === "running";
     const acting = messages.some(message => message.state === "acting");
-    byId("chat-title").textContent = detail?.chat.title || "Neuer Chat";
+    updateTitle();
     input.placeholder = detail?.chat.document ? "Frage zu " + detail.chat.document : "Schreib eine Nachricht …";
     byId("chat-empty").hidden = messages.length > 0;
     byId("chat-stop").hidden = !live;
@@ -587,14 +676,17 @@
   window.intelligence = {
     login(value) {
       identity=value;
-      byId("operator-label").textContent=value.role==="admin"?"Administration":"Chat";
+      restoreSidebar();
+      fitViewport();
       selections(value.profiles,value.modes);
       refreshHistory();
       render();
     },
     logout() {
       identity=null; historySequence++; resetChat();
+      setSidebar(false);
       byId("history-list").replaceChildren();
+      byId("administration").open=false;
       byId("routing-form").reset();
       byId("routing-recent").replaceChildren();
       byId("routing-message").textContent="";
@@ -606,9 +698,15 @@
       try { await pick(await create(path)); } catch (error) { reportError(error); }
     },
     navigate(page) {
+      const changed = currentPage !== page;
       currentPage=page;
       document.body.classList.toggle("chat-active",page==="chat");
-      if (mobile.matches) setSidebar(false);
+      if (changed) {
+        byId("workspace").scrollTop = 0;
+        chatOptions.open = false;
+        if (mobile.matches && sidebarOpen) setSidebar(false);
+      }
+      updateTitle();
       if (page==="chat") void refreshDetail();
       else clearTimeout(pollTimer);
       if (page==="routing" && identity?.role==="admin") void loadAdmin();

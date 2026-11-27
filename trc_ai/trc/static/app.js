@@ -82,15 +82,15 @@ byId("login-form").addEventListener("submit", async (event) => {
       byId("refresh-description").textContent = field.description;
       refreshSeconds = values.refresh_seconds;
     }
-    window.intelligence?.login(identity);
     byId("sidebar").hidden = false;
-    byId("sidebar-toggle").hidden = false;
+    byId("app-bar").hidden = false;
     byId("login").hidden = true;
     byId("workspace").hidden = false;
+    window.intelligence?.login(identity);
     byId("login-form").reset();
     byId("login-message").textContent = "";
-    byId("logout").focus();
     navigate();
+    byId("sidebar-toggle").focus({preventScroll:true});
     if (accessRole === "admin") void poll();
   } catch (error) {
     token = "";
@@ -109,7 +109,7 @@ byId("logout").addEventListener("click", () => {
   accessRole = "";
   window.intelligence?.logout();
   byId("sidebar").hidden = true;
-  byId("sidebar-toggle").hidden = true;
+  byId("app-bar").hidden = true;
   for (const id of ["knowledge-query", "document-upload"]) byId(id).reset();
   for (const id of ["knowledge-sources", "knowledge-output", "knowledge-message", "document-list", "documents-message", "backend-errors", "backend-message", "backend-jobs"]) byId(id).replaceChildren();
   byId("backend-pause").disabled = true;
@@ -356,25 +356,33 @@ async function loadDocuments(append = false) {
     message.textContent = documents.length || append ? "" : "Noch keine Dokumente vorgemerkt.";
     for (const row of documents) {
       const item = document.createElement("li");
-      item.textContent = `${row.path} · ${stateLabels[row.state] || row.state} · ${row.chunks} Segmente`;
-      if (row.error_code) item.append(` · ${row.error_code}`);
+      const title = document.createElement("strong");
+      title.textContent = row.path;
+      const meta = document.createElement("p");
+      meta.textContent = `${stateLabels[row.state] || row.state} · ${row.chunks} Segmente`;
+      if (row.error_code) meta.append(` · ${row.error_code}`);
+      const actions = document.createElement("div");
+      actions.className = "document-actions";
+      if (row.state === "done") {
+        const ask = document.createElement("button");
+        ask.type = "button";
+        ask.textContent = "Im Chat fragen";
+        ask.addEventListener("click", () => void window.intelligence.fromDocument(row.path));
+        actions.append(ask);
+      }
       if (row.state === "failed" || row.state === "done") {
         const button = document.createElement("button");
         button.type = "button";
+        button.className = "secondary-button";
         button.textContent = row.state === "failed" ? "Wiederholen" : "Neu indexieren";
         button.addEventListener("click", () => void perform(button, message, async current => {
           await api("knowledge/retry", jsonBody("POST", { path: row.path, reindex: row.state === "done" }));
           if (!current.aborted) await loadDocuments();
         }));
-        item.append(" ", button);
+        actions.append(button);
       }
-      if (row.state === "done") {
-        const open = document.createElement("button");
-        open.type = "button";
-        open.textContent = "Chat starten";
-        open.addEventListener("click", () => void window.intelligence.fromDocument(row.path));
-        item.append(" ", open);
-      }
+      item.append(title, meta);
+      if (actions.childElementCount) item.append(actions);
       list.append(item);
     }
   } catch (error) {

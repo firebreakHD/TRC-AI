@@ -1,6 +1,6 @@
 name: TRC-AI
 description: Control Center, Wissensdatenbank und API für persönliche Automatisierungen
-version: "0.3.0"
+version: "0.3.1"
 slug: trc_ai
 url: https://github.com/firebreakHD/TRC-AI
 arch:

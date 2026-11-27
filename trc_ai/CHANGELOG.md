@@ -1,5 +1,11 @@
 # Änderungsverlauf
 
+## 0.3.1
+
+- Überarbeitete Chat-Oberfläche mit einer Werkzeugleiste für Verlauf und neue Chats.
+- Mobiler Verlauf mit Wischgeste, abgedunkeltem Hintergrund und kompakter Verwaltung.
+- Gemeinsame Auswahl für Assistent und Anfrage-Modus sowie ein klarer Einstieg vom Dokument zum Chat.
+
 ## 0.3.0
 
 - Chat, Assistentenprofile, Dokumentanhänge und kontrolliertes Anfrage-Routing.

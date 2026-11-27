@@ -1,7 +1,7 @@
 FROM qdrant/qdrant:v1.18.0 AS vector_store
 FROM postgres:18-trixie
 LABEL org.opencontainers.image.source="https://github.com/firebreakHD/TRC-AI" \
-      org.opencontainers.image.version="0.3.0"
+      org.opencontainers.image.version="0.3.1"
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-venv supervisor tini libunwind8 libgomp1 poppler-utils \
        tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng \

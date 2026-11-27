@@ -14,7 +14,8 @@ with sync_playwright() as playwright:
     browser = playwright.chromium.launch(executable_path=chromium, headless=True)
     for viewport, color in [({"width": 1440, "height": 900}, "light"),
                             ({"width": 390, "height": 844}, "dark")]:
-        page = browser.new_page(viewport=viewport, color_scheme=color)
+        mobile = viewport["width"] < 760
+        page = browser.new_page(viewport=viewport, color_scheme=color, is_mobile=mobile, has_touch=mobile)
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
 
@@ -30,15 +31,39 @@ with sync_playwright() as playwright:
             page.get_by_role("link", name=name, exact=True).click()
 
         page.goto(url)
-        page.get_by_label("Administrations-Token").fill("invalid_ui_test_00000000000000000000")
+        page.get_by_label("Zugriffstoken").fill("invalid_ui_test_00000000000000000000")
         page.get_by_role("button", name="Anmelden").click()
         expect(page.get_by_text("Ein gültiges Zugriffstoken ist erforderlich.")).to_be_visible()
-        page.get_by_label("Administrations-Token").fill(token)
-        page.get_by_label("Administrations-Token").press("Enter")
+        page.get_by_label("Zugriffstoken").fill(token)
+        page.get_by_label("Zugriffstoken").press("Enter")
         expect(page.get_by_text("Wobei kann ich helfen?")).to_be_visible()
         assert page.locator("#administration").evaluate("(node) => !node.open")
+        expect(page.get_by_role("button", name="Neuer Chat", exact=True)).to_have_count(1)
+        expect(page.locator("#sidebar a[href='#chat']")).to_have_count(0)
+        if mobile:
+            cdp = page.context.new_cdp_session(page)
+
+            def swipe(start, end):
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": start, "y": 200}]})
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": end, "y": 201}]})
+                cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+
+            swipe(26, 158)
+            expect(page.get_by_role("button", name="Verlauf schließen")).to_have_attribute("aria-expanded", "true")
+            expect(page.locator("#sidebar")).to_have_css("transform", "none")
+            expect(page.locator("#workspace")).to_have_attribute("inert", "")
+            expect(page.locator("#app-bar-label")).to_have_text("Verlauf")
+            swipe(160, 40)
+            expect(page.get_by_role("button", name="Verlauf öffnen")).to_have_attribute("aria-expanded", "false")
+            sidebar()
+            page.locator("#sidebar-backdrop").click(position={"x": 380, "y": 180})
+            expect(page.locator("#sidebar-backdrop")).to_be_hidden()
+        page.locator("#chat-options > summary").click()
         page.locator("#chat-profile").select_option("jarvis")
         page.locator("#chat-mode").select_option("documents")
+        expect(page.locator("#chat-option-label")).to_have_text("JARVIS · Dokumente")
+        page.keyboard.press("Escape")
+        expect(page.locator("#chat-profile")).to_be_hidden()
         transfer = page.evaluate_handle(r"""() => {
             const t = new DataTransfer();
             t.items.add(new File(["# Probe\n\nBROWSERKOMET ist der Testbeleg."], "browser.md"));
@@ -80,14 +105,18 @@ with sync_playwright() as playwright:
         expect(page.locator("#knowledge-sources")).to_contain_text("BLAUKOMET")
         go("Dokumente")
         expect(page.locator("#document-list")).to_contain_text("upload/wissen.md")
+        document = page.locator("#document-list li").filter(has_text="upload/wissen.md")
+        expect(document.get_by_role("button", name="Im Chat fragen")).to_have_count(1)
+        document.get_by_role("button", name="Im Chat fragen").click()
+        expect(page.locator("#chat-input")).to_have_attribute("placeholder", "Frage zu upload/wissen.md")
         go("Dienste, Datenbanken und Modelle", admin=True)
         expect(page.locator("#backend-embed")).to_contain_text("1024 Dimensionen")
         assert page.evaluate("document.documentElement.scrollWidth === window.innerWidth")
         sidebar()
         page.get_by_role("button",name="Abmelden").click()
-        expect(page.get_by_label("Administrations-Token")).to_be_focused()
+        expect(page.get_by_label("Zugriffstoken")).to_be_focused()
         assert not errors, errors
         page.close()
     browser.close()
 
-print("Chromium: Chat, Drag-and-drop, Quellen, mobile Navigation, Darstellung und vorhandene Administration geprüft.")
+print("Chromium: Chat, Drag-and-drop, Quellen, mobile Wischgesten, Dokumenteinstieg, Darstellung und Verwaltung geprüft.")
