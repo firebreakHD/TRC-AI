@@ -5,3 +5,24 @@ configuration:
   workflow_token:
     name: Workflow-Token
     description: Separater zufälliger Schlüssel mit 32 bis 128 Zeichen für n8n. Leer deaktiviert den Datenimport.
+  network_public_url:
+    name: Öffentliche TRC-AI-Basisadresse
+    description: Externe HTTPS-Adresse, optional mit korrekt eingerichteter Weiterleitung.
+  network_internal_url:
+    name: Interne TRC-AI-Basisadresse
+    description: Adresse für direkte Verbindungen aus dem LAN oder VPN.
+  network_proxy_mode:
+    name: Weiterleitungsmodus
+    description: Weiterleitungsheader nur im Proxy-Modus aus vertrauenswürdigen Netzen akzeptieren.
+  network_trusted_proxies:
+    name: Vertrauenswürdige Proxy-Adressen
+    description: IP-Adressen oder CIDR-Netze der tatsächlichen letzten Verbindung.
+  network_tls_mode:
+    name: TLS-Architektur
+    description: Lokales HTTP oder HTTPS-Terminierung am vertrauenswürdigen Reverse Proxy.
+  network_ca_file:
+    name: Eigene CA-Datei
+    description: Dateiname eines zusätzlichen PEM-Zertifikats im schreibgeschützten SSL-Ordner.
+  network_timeout_seconds:
+    name: Standard-Zeitlimit für Integrationen
+    description: Zeitlimit in Sekunden, sofern ein Dienst keinen eigenen Wert verwendet.
