@@ -1,5 +1,5 @@
 name: TRC-AI
-description: Control Center, PostgreSQL, Qdrant und API für persönliche Automatisierungen
+description: Control Center, Wissensdatenbank und API für persönliche Automatisierungen
 version: "0.2.0"
 slug: trc_ai
 url: https://github.com/firebreakHD/TRC-AI
@@ -16,6 +16,7 @@ panel_title: TRC Control Center
 panel_icon: mdi:brain
 map:
   - ssl:ro
+  - share:ro
 ports:
   8099/tcp: null
 ports_description:
@@ -30,6 +31,21 @@ options:
   network_tls_mode: lan_http
   network_ca_file: ""
   network_timeout_seconds: 8
+  rag_pg_buffers_mib: 256
+  rag_embed_model: bge-m3
+  rag_dimensions: 1024
+  rag_embed_batch: 4
+  rag_chat_provider: ollama
+  rag_chat_model: ""
+  rag_context: 4096
+  rag_answer_tokens: 350
+  rag_ocr_language: deu+eng
+  rag_docling: true
+  rag_rerank_candidates: 12
+  rag_shared_dir: ""
+  rag_poll_seconds: 45
+  rag_upload_mib: 20
+  rag_upload_quota_mib: 1024
 schema:
   admin_token: password
   workflow_token: password
@@ -41,3 +57,18 @@ schema:
   network_tls_mode: list(lan_http|proxy_https)
   network_ca_file: str?
   network_timeout_seconds: int(1,30)
+  rag_pg_buffers_mib: int(64,512)
+  rag_embed_model: str
+  rag_dimensions: int(64,4096)
+  rag_embed_batch: int(1,16)
+  rag_chat_provider: list(ollama|openai_compatible)
+  rag_chat_model: str?
+  rag_context: int(1024,16384)
+  rag_answer_tokens: int(64,1200)
+  rag_ocr_language: list(deu+eng|deu|eng)
+  rag_docling: bool
+  rag_rerank_candidates: int(3,30)
+  rag_shared_dir: str?
+  rag_poll_seconds: int(10,3600)
+  rag_upload_mib: int(1,32)
+  rag_upload_quota_mib: int(32,8192)

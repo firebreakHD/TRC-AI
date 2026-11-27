@@ -7,3 +7,5 @@ Setze vor dem ersten Start ein zufälliges `admin_token` mit 32–128 Zeichen au
 Home Assistant erstellt ein kaltes Add-on-Backup und stoppt TRC-AI während der Sicherung. Die Datenbanken liegen unter `/data/postgresql` und `/data/qdrant`. Der Dokumentenindex und der eigenständige Assistenz-Chat folgen in späteren Entwicklungsständen.
 
 Konfiguration von LAN, VPN, Ingress, Reverse Proxy und Dienstprofilen siehe [Netzwerk und Integrationen](https://github.com/firebreakHD/TRC-AI/blob/main/docs/NETWORK.md).
+
+Im Control Center das vorhandene Ollama unter **Netzwerk und Integrationen** hinterlegen. Das Modell bge-m3 muss für die Indexierung erreichbar sein. Eine Datei unter **Dokumente** hochladen und nach der Indexierung in **Wissensdatenbank** suchen. 8099 ist der interne Port. Für LAN-Zugriff optional einen freien HAOS-Host-Port wählen.

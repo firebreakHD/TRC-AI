@@ -26,3 +26,48 @@ configuration:
   network_timeout_seconds:
     name: Standard-Zeitlimit für Integrationen
     description: Zeitlimit in Sekunden, sofern ein Dienst keinen eigenen Wert verwendet.
+  rag_pg_buffers_mib:
+    name: PostgreSQL-Puffer
+    description: Arbeitsspeicher in MiB für PostgreSQL. Wirkt nach Add-on-Neustart.
+  rag_embed_model:
+    name: Embedding-Modell
+    description: Name des vorhandenen Ollama-Modells, beispielsweise bge-m3.
+  rag_dimensions:
+    name: Vektordimension
+    description: Muss zum Modell und zum vorhandenen Index passen. BGE-M3 verwendet 1024.
+  rag_embed_batch:
+    name: Embedding-Batchgröße
+    description: Anzahl gleichzeitig eingebetteter Segmente.
+  rag_chat_provider:
+    name: Anbieter für Antworten
+    description: Ollama oder ein ausdrücklich konfigurierter OpenAI-kompatibler Anbieter.
+  rag_chat_model:
+    name: Antwortmodell
+    description: Vorhandener Modellname. Leer schaltet generierte Antworten ab.
+  rag_context:
+    name: Kontextgröße
+    description: Maximales Kontextfenster in Tokens. Bei Ollama an das Modell übergeben.
+  rag_answer_tokens:
+    name: Maximale Antwortlänge
+    description: Obergrenze für vom Modell erzeugte Tokens.
+  rag_ocr_language:
+    name: OCR-Sprache
+    description: Sprachmodell für lokal ausgeführte Texterkennung.
+  rag_docling:
+    name: Docling für Word
+    description: Konvertiert DOCX strukturiert im lokalen Parserprozess.
+  rag_rerank_candidates:
+    name: Kandidaten zur Nachsortierung
+    description: Begrenzt die Zahl der Treffer für das Reranking.
+  rag_shared_dir:
+    name: Beobachteter Dokumentordner
+    description: Relativer Unterordner von /share. Leer deaktiviert die Ordnerüberwachung.
+  rag_poll_seconds:
+    name: Prüfintervall
+    description: Sekunden zwischen zwei Durchläufen der Dokumentüberwachung.
+  rag_upload_mib:
+    name: Maximale Dateigröße für Uploads
+    description: Obergrenze in MiB je Datei.
+  rag_upload_quota_mib:
+    name: Speichergrenze für Uploads
+    description: Obergrenze in MiB für die private Dokumentablage.

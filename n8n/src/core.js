@@ -17,7 +17,13 @@ const date = value => {
 };
 const earlier = (t, ms) => new Date(Date.parse(t) - ms).toISOString();
 const now = () => new Date().toISOString();
-const localDay = value => new Intl.DateTimeFormat('en-CA', {timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date(value));
+const viennaDate = new Intl.DateTimeFormat('en-CA', {
+  timeZone:TZ, calendar:'gregory', numberingSystem:'latn', year:'numeric', month:'2-digit', day:'2-digit'
+});
+const localDay = value => {
+  const fields = Object.fromEntries(viennaDate.formatToParts(new Date(value)).map(({type,value}) => [type,value]));
+  return fields.year.padStart(4,'0') + '-' + fields.month + '-' + fields.day;
+};
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 function uuid(content) {
   const h = sha(content);

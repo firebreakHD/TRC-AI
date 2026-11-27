@@ -3,24 +3,25 @@ FROM postgres:18-trixie
 LABEL org.opencontainers.image.source="https://github.com/firebreakHD/TRC-AI" \
       org.opencontainers.image.version="0.2.0"
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 python3-venv supervisor tini libunwind8 libgomp1 \
+    && apt-get install -y --no-install-recommends python3 python3-venv supervisor tini libunwind8 libgomp1 poppler-utils \
+       tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --system --no-create-home trc \
     && useradd --system --no-create-home qdrant
 WORKDIR /opt/trc
-COPY requirements.lock .
-RUN --mount=type=secret,id=pip_ca,target=/run/secrets/pip_ca \
+RUN --mount=type=bind,source=.,target=/tmp/backend \
+    --mount=type=bind,from=vector_store,source=/qdrant,target=/tmp/vector_store \
+    --mount=type=secret,id=pip_ca,target=/run/secrets/pip_ca \
     if [ -f /run/secrets/pip_ca ]; then export PIP_CERT=/run/secrets/pip_ca; fi \
     && python3 -m venv /opt/venv \
-    && /opt/venv/bin/pip install --no-cache-dir --require-hashes --only-binary=:all: -r requirements.lock
-COPY --from=vector_store /qdrant/qdrant /usr/local/bin/qdrant
-COPY --from=vector_store /qdrant/qdrant.spdx.json /usr/share/doc/qdrant/qdrant.spdx.json
-COPY qdrant.LICENSE /usr/share/doc/qdrant/LICENSE
-RUN qdrant --version
-COPY trc trc
-COPY migrations migrations
-COPY supervisord.conf qdrant.yaml run.sh ./
-RUN chmod -R a+rX /opt/trc
+    && /opt/venv/bin/pip install --no-cache-dir --require-hashes --only-binary=:all: -r /tmp/backend/requirements.lock \
+    && install -m 755 /tmp/vector_store/qdrant /usr/local/bin/qdrant \
+    && install -Dm644 /tmp/vector_store/qdrant.spdx.json /usr/share/doc/qdrant/qdrant.spdx.json \
+    && install -m 644 /tmp/backend/qdrant.LICENSE /usr/share/doc/qdrant/LICENSE \
+    && cp -R /tmp/backend/trc /tmp/backend/migrations /opt/trc/ \
+    && install -m 644 /tmp/backend/supervisord.conf /tmp/backend/qdrant.yaml /tmp/backend/run.sh /opt/trc/ \
+    && chmod -R a+rX /opt/trc \
+    && qdrant --version
 ENV PATH="/opt/venv/bin:${PATH}" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 EXPOSE 8099
 STOPSIGNAL SIGTERM

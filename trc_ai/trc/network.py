@@ -51,6 +51,9 @@ LABELS = {
     "obsidian": "Obsidian",
     "smtp": "SMTP",
     "providers": "Externe Datenanbieter",
+    "docling": "Docling Serve",
+    "llm": "OpenAI-kompatible LLM-Fassade",
+    "reranker": "Externer Reranker",
 }
 PROBES = {
     "trc": "/healthz",

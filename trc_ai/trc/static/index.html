@@ -12,6 +12,9 @@
     <p class="brand">TRC Control Center</p>
     <nav aria-label="Verwaltung">
       <a href="#uebersicht" aria-current="page">Übersicht</a>
+      <a href="#wissen">Wissensdatenbank</a>
+      <a href="#dokumente">Dokumente</a>
+      <a href="#betrieb">Dienste und Datenbanken</a>
       <a href="#system">System</a>
       <a href="#netzwerk">Netzwerk und Integrationen</a>
     </nav>
@@ -53,6 +56,55 @@
           <p id="refresh-description" class="hint"></p>
           <p id="preferences-message" role="status"></p>
         </form>
+      </section>
+      <section id="wissen" aria-labelledby="knowledge-title">
+        <h1 id="knowledge-title">Wissensdatenbank</h1>
+        <form id="knowledge-query">
+          <label>Frage<textarea id="knowledge-question" required minlength="3" maxlength="1500" rows="3"></textarea></label>
+          <label>Profil<select id="knowledge-profile"><option value="general">Wissensdatenbank</option><option value="jarvis">JARVIS</option><option value="friday">FRIDAY</option></select></label>
+          <label class="check"><input type="checkbox" id="knowledge-answer"> Antwort mit konfiguriertem Modell erzeugen</label>
+          <button>Suchen</button>
+        </form>
+        <p id="knowledge-message" role="status"></p>
+        <p id="knowledge-output"></p>
+        <ol id="knowledge-sources"></ol>
+      </section>
+      <section id="dokumente" aria-labelledby="documents-title">
+        <h1 id="documents-title">Dokumente</h1>
+        <form id="document-upload">
+          <label>Datei <input type="file" id="document-file" required accept=".md,.txt,.pdf,.docx,.xlsx,.csv,.tsv,.png,.jpg,.jpeg,.tif,.tiff"></label>
+          <button>Hochladen und vormerken</button>
+        </form>
+        <p id="documents-message" role="status"></p>
+        <button type="button" id="documents-refresh">Liste aktualisieren</button>
+        <ul id="document-list"></ul>
+        <button type="button" id="documents-next" hidden>Weitere Dokumente</button>
+      </section>
+      <section id="betrieb" aria-labelledby="services-title">
+        <h1 id="services-title">Dienste und Datenbanken</h1>
+        <dl>
+          <div><dt>PostgreSQL</dt><dd id="backend-db"></dd></div>
+          <div><dt>Qdrant</dt><dd id="backend-vector"></dd></div>
+          <div><dt>Dokument-Worker</dt><dd id="backend-worker"></dd></div>
+          <div><dt>Indexierte Dokumente</dt><dd id="backend-documents"></dd></div>
+        </dl>
+        <button type="button" id="backend-pause" disabled>Verarbeitung pausieren</button>
+        <button type="button" id="backend-repair">Qdrant-Index abgleichen</button>
+        <button type="button" id="backend-refresh">Status aktualisieren</button>
+        <p id="backend-message" role="status"></p>
+        <h2>Modelle</h2>
+        <dl>
+          <div><dt>Embedding</dt><dd id="backend-embed"></dd></div>
+          <div><dt>Antwortmodell</dt><dd id="backend-model"></dd></div>
+        </dl>
+        <p>Modellnamen und Ressourcenlimits in den Add-on-Optionen ändern. Diese Änderungen brauchen einen Neustart.</p>
+        <h2>Automatisierung</h2>
+        <p id="backend-jobs"></p>
+        <p>n8n verbindet sich über die Workflow-API. Adressen und Schlüssel stehen in Home Assistant und in der n8n-Konfiguration.</p>
+        <h2>Letzte Verarbeitungsfehler</h2>
+        <ul id="backend-errors"></ul>
+        <h2>Backup</h2>
+        <p>Kalte Add-on-Sicherung und Wiederherstellung in Home Assistant ausführen. Für den lokalen Ordner unter /share eine separate Sicherung erstellen.</p>
       </section>
       <section id="netzwerk" aria-labelledby="network-title">
         <h1 id="network-title">Netzwerk und Integrationen</h1>

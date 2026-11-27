@@ -1,3 +1,4 @@
+from asyncio import Semaphore
 from contextlib import asynccontextmanager
 from datetime import timezone
 from enum import StrEnum
@@ -9,9 +10,10 @@ from pathlib import Path
 import shutil
 from urllib.error import URLError
 from urllib.request import ProxyHandler, build_opener
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -20,6 +22,8 @@ import psycopg
 from starlette.concurrency import run_in_threadpool
 
 from . import network, settings, storage
+from .rag import config as knowledge_config
+from .rag import http as knowledge_http
 
 VERSION = "0.2.0"
 MAX_BODY = 512 * 1024
@@ -87,6 +91,9 @@ async def lifespan(app):
     app.state.tokens = settings.load_tokens()
     app.state.network_startup = network.load_startup()
     app.state.schema_ready = False
+    app.state.knowledge_config = knowledge_config.load()
+    app.state.upload_limit = Semaphore(1)
+    app.state.query_limit = Semaphore(1)
     yield
 
 
@@ -286,3 +293,25 @@ async def network_test(request: Request, service: str):
         raise ApiError(422, "invalid_network_settings", str(exc)[:240]) from exc
     except OSError as exc:
         raise ApiError(503, "network_settings_unavailable", "Prüfung konnte nicht gespeichert werden.") from exc
+
+
+
+@app.get("/api/v1/workflow/records/{area}")
+async def workflow_read(
+    request: Request,
+    area: Area,
+    source: Annotated[str | None, Query(pattern=r"^[a-z0-9][a-z0-9._-]{0,63}$")] = None,
+    cursor: Annotated[str, Query(max_length=2200)] = "",
+    limit: Annotated[int, Query(ge=1, le=50)] = 25,
+):
+    await authorize(request, "admin")
+    await run_in_threadpool(require_database)
+    try:
+        return await run_in_threadpool(storage.list_records, area, source, cursor, limit)
+    except ValueError as error:
+        raise ApiError(422, "invalid_cursor", "Ungültiger Lesecursor.") from error
+    except psycopg.Error as error:
+        raise ApiError(503, "database_unavailable", "PostgreSQL ist zurzeit nicht verfügbar.") from error
+
+
+knowledge_http.install(app, authorize, read_model, require_database, ApiError)

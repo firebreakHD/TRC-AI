@@ -1,3 +1,3 @@
 # TRC-AI
 
-Das TRC Control Center zeigt den realen Status von PostgreSQL und Qdrant und Systemressourcen an. Unabhängige Hintergrundworkflows können versionierte JSON-Importe an die TRC-AI-API senden.
+Das AMD64-Add-on enthält eine Wissensdatenbank mit Uploads, OCR, Docling, PostgreSQL und Qdrant. Das Control Center zeigt Verarbeitung, Quellen, Modelle und Dienstverbindungen. Embeddings und optionale Antworten nutzen vorhandene Modellanbieter.

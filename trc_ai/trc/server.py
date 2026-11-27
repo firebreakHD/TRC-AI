@@ -13,4 +13,5 @@ if __name__ == "__main__":
         port=8099,
         access_log=False,
         proxy_headers=False,
+        limit_concurrency=24,
     )

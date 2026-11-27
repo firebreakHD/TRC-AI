@@ -2,6 +2,7 @@
 set -euo pipefail
 
 image=${1:-trc-ai:0.2.0}
+backup_tool=${TRC_TEST_BACKUP_TOOL_IMAGE:-busybox:1.37}
 instance="trc-test-$$-$RANDOM"
 data="$instance-data"
 archive="$instance-archive"
@@ -21,11 +22,17 @@ for volume in "$data" "$archive" "$restored"; do
     docker volume create "$volume" >/dev/null
 done
 
-printf '{"admin_token":"%s","workflow_token":"%s"}\n' "$TRC_TEST_ADMIN" "$TRC_TEST_WORKFLOW" |
-    docker run --rm -i -v "$data:/data" --entrypoint sh "$image" -c 'umask 077; cat > /data/options.json'
+mkdir -p "$fixture/shared/knowledge"
+chmod 755 "$fixture" "$fixture/shared" "$fixture/shared/knowledge"
+printf '# Vault-Freigabe\n\nDie Kennung im beobachteten Ordner lautet LOKALSPEICHER.\n' > "$fixture/shared/knowledge/vault.md"
+chmod 644 "$fixture/shared/knowledge/vault.md"
+printf '{"admin_token":"%s","workflow_token":"%s","rag_chat_model":"fixture","rag_shared_dir":"knowledge","rag_poll_seconds":10}\n' "$TRC_TEST_ADMIN" "$TRC_TEST_WORKFLOW" |
+    docker run --rm -i -v "$data:/data" --entrypoint sh "$backup_tool" -c 'umask 077; cat > /data/options.json'
 
 start() {
-    docker run -d --name "$instance" -p 127.0.0.1::8099 -v "$1:/data" "$image" >/dev/null
+    docker run -d --name "$instance" -v "$fixture/shared:/share:ro" -p 127.0.0.1::8099 -v "$1:/data" "$image" >/dev/null
+    docker cp tests/rag_model_fixture.py "$instance:/tmp/trc_model_fixture.py"
+    docker exec -d "$instance" python /tmp/trc_model_fixture.py
     export TRC_TEST_URL="http://$(docker port "$instance" 8099/tcp)"
     for attempt in {1..40}; do
         if curl -fsS "$TRC_TEST_URL/healthz" >/dev/null 2>&1 &&
@@ -47,11 +54,32 @@ stop() {
     docker rm "$instance" >/dev/null
 }
 
+if [[ -n "${TRC_TEST_BASELINE_IMAGE:-}" ]]; then
+    docker run -d --name "$instance" -p 127.0.0.1::8099 -v "$data:/data" "$TRC_TEST_BASELINE_IMAGE" >/dev/null
+    legacy_api="http://$(docker port "$instance" 8099/tcp)"
+    for attempt in {1..40}; do
+        if curl -fsS "$legacy_api/healthz" >/dev/null 2>&1; then
+            break
+        fi
+        sleep 1
+    done
+    replay_id=ea42bc23-cca2-4eff-a90b-80bcf8b1703f
+    curl -fsS "$legacy_api/api/v1/workflow/records/tasks" \
+        -H "Authorization: Bearer $TRC_TEST_WORKFLOW" -H "Idempotency-Key: $replay_id" \
+        -H "Content-Type: application/json" --data-binary @contracts/examples/tasks.json >/dev/null
+    stop
+    printf 'Release 0.1.0 mit bestehendem Datensatz für das Upgrade vorbereitet.\n'
+fi
+
 start "$data"
 docker exec -i "$instance" python - fresh < tests/vector_store.py
 python3 tests/smoke.py fresh
-test "$(check_database 'SELECT count(*) FROM schema_migrations')" = 1
+test "$(check_database 'SELECT count(*) FROM schema_migrations')" = 2
 test "$(check_database 'SELECT count(*) FROM workflow_records')" = 3
+docker exec -i "$instance" python - /tmp/trc-fake-documents < tests/rag_fixtures.py
+docker cp "$instance:/tmp/trc-fake-documents" "$fixture/"
+python3 tests/rag_smoke.py fresh "$fixture/trc-fake-documents"
+mv "$fixture/shared/knowledge" "$fixture/shared/offline"
 if [[ "${TRC_TEST_BROWSER:-0}" = 1 ]]; then
     python3 tests/browser.py
 fi
@@ -73,10 +101,11 @@ curl -fsS "$TRC_TEST_URL/healthz"
 printf '\nAutomatischer PostgreSQL-Neustart geprüft.\n'
 
 stop
-printf '{"admin_token":"%s","workflow_token":"%s","network_proxy_mode":"trusted_proxy","network_trusted_proxies":["127.0.0.1"],"network_tls_mode":"proxy_https","network_public_url":"https://after.example.invalid"}\n'     "$TRC_TEST_ADMIN" "$TRC_TEST_WORKFLOW" |
-    docker run --rm -i -v "$data:/data" --entrypoint sh "$image" -c 'umask 077; cat > /data/options.json'
+printf '{"admin_token":"%s","workflow_token":"%s","network_proxy_mode":"trusted_proxy","network_trusted_proxies":["127.0.0.1"],"network_tls_mode":"proxy_https","network_public_url":"https://after.example.invalid","rag_chat_model":"fixture","rag_shared_dir":"knowledge","rag_poll_seconds":10}\n'     "$TRC_TEST_ADMIN" "$TRC_TEST_WORKFLOW" |
+    docker run --rm -i -v "$data:/data" --entrypoint sh "$backup_tool" -c 'umask 077; cat > /data/options.json'
 start "$data"
 python3 tests/smoke.py persisted
+python3 tests/rag_smoke.py persisted
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=trc-proxy-fixture     -addext subjectAltName=IP:127.0.0.1 -out "$fixture/test-ca.pem" -keyout "$fixture/test-key.pem" 2>/dev/null
 docker cp "$fixture/test-ca.pem" "$instance:/tmp/trc-test-ca.pem"
 docker cp "$fixture/test-key.pem" "$instance:/tmp/trc-test-key.pem"
@@ -99,11 +128,25 @@ for status in sorted(Path("/proc").glob("[0-9]*/status")):
 stop
 
 # Cold archive of the same data directory used by the HAOS app.
-docker run --rm -v "$data:/data:ro" -v "$archive:/archive" --entrypoint tar "$image"     -C /data -czf /archive/trc.tar.gz .
-docker run --rm -v "$restored:/data" -v "$archive:/archive:ro" --entrypoint tar "$image"     -C /data -xzf /archive/trc.tar.gz
+docker run --rm -v "$data:/data:ro" -v "$archive:/archive" --entrypoint tar "$backup_tool"     -C /data -czf /archive/trc.tar.gz .
+docker run --rm -v "$restored:/data" -v "$archive:/archive:ro" --entrypoint tar "$backup_tool"     -C /data -xzf /archive/trc.tar.gz
 start "$restored"
 docker exec -i "$instance" python - restored < tests/vector_store.py
 python3 tests/smoke.py persisted
+python3 tests/rag_smoke.py persisted
+docker exec "$instance" python -c 'import urllib.request; urllib.request.urlopen(urllib.request.Request("http://127.0.0.1:6333/collections/trc_knowledge_v1", method="DELETE")).close()'
+curl -fsS -X POST "$TRC_TEST_URL/api/v1/knowledge/index/repair" \
+    -H "Authorization: Bearer $TRC_TEST_ADMIN" >/dev/null
+restored_points=0
+for attempt in {1..40}; do
+    if docker exec "$instance" python -c 'import json, urllib.request; assert json.load(urllib.request.urlopen("http://127.0.0.1:6333/collections/trc_knowledge_v1"))["result"]["points_count"] >= 9' >/dev/null 2>&1; then
+        restored_points=1
+        break
+    fi
+    sleep 1
+done
+test "$restored_points" = 1
+python3 tests/rag_smoke.py persisted
 test "$(check_database "SELECT payload->>'title' FROM workflow_records WHERE external_id = 'task-42'")" = 'Aktualisiert'
 stop
 printf 'Kalter Backup- und Restore-Test in neuem Volume erfolgreich.\n'

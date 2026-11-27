@@ -33,3 +33,20 @@ HAOS-Live-Tests stehen aus. Dazu gehören Installation durch Supervisor, Ingress
 | Editor, OAuth, Webhooks, WebSockets und SSE von n8n | Separate n8n-Abnahme in dessen Paket. Freigaben des tatsächlichen Google-Projekts und HAOS-Proxy-Abnahme vor Ort offen. |
 
 Die Docker- und Chromium-Smokes verwenden ausschließlich Testdaten und kurzlebige Volumes. Das Netzwerkprofil wurde auf Desktop- und Mobilansicht getestet.
+
+## Integriertes Backend 0.2.0
+
+| Bereich | Nachweis |
+| --- | --- |
+| Container und Migration | amd64-Build mit PostgreSQL und Qdrant. Der CI-Smoke baut zusätzlich v0.1.0, schreibt einen synthetischen Bestandsdatensatz und prüft dessen Erhalt nach Migration. |
+| Dokumente | Acht synthetische Uploads in Markdown, TXT, Digital-PDF, Scan-PDF, DOCX, XLSX, CSV und PNG. Word-Absatz und Docling-Tabelle, Excel-Tabelle und OCR-Belege werden abgefragt. Ein zusätzlicher Vault-Watcher-Fall prüft die Beibehaltung indexierter Quellen bei fehlendem Ordner. |
+| Suche | Dauerhafte Chunks, Qdrant-Vektoren, Quellen und Ersatz einer Version. Lokales Reranking, leere Treffer und Fallback bei Modellfehler. Ollama-Protokoll im Backend-Test mit isolierten 1024-dimensionalen Vektoren und synthetischer Antwort. |
+| Kompatibilität | Bestehendes n8n-Status- und Schreibformat, Replay, Konflikt, Admin-Lesen, Pagination und getrennte Rollen im Smoke. Generator und 53 n8n-Exporte werden separat geprüft. |
+| Betrieb | Chromium Desktop/Mobil, HTTPS-Proxy mit simulierter Ingress-Route, PostgreSQL-Wiederanlauf, kaltes Archiv mit neuem Volume. Der Smoke fordert nach Entfernen der Testprojektion den Indexabgleich über die API an. |
+| Sicherheit | Begrenztes Format und Upload, Ressourcenlimits, Ausschluss ungültiger Namen, TLS-Prüfung, Hashbindung. Python-Abhängigkeitsprüfung ohne bekannte Treffer im geprüften Lockfile. |
+| Tatsächliche Modelle | Die WDB-RAG-Referenz v1.1.0 protokolliert echte BGE-M3-Vektoren mit 1024 Dimensionen und einen CPU-ONNX-Reranker. Die Add-on-Prüfung benutzt eine Protokoll-Fixture. OpenAI-kompatible externe Dienste und das installierte Ollama des Zielsystems sind gesondert zu testen. |
+| Vor Ort offen | Installation über den echten HAOS-Supervisor, vorhandenes Ollama, Zielhardware unter gleichzeitiger Last und HAOS-Wiederherstellungsdialog. |
+
+Die dokumentierten Befehle unter Installation verwenden ausschließlich synthetische Testdaten. Benachrichtigungen und Produktionszugänge sind dafür nicht erforderlich.
+
+[Abnahmelauf in GitHub Actions](https://github.com/firebreakHD/TRC-AI/actions)

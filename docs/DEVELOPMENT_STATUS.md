@@ -1,11 +1,9 @@
 # Entwicklungsstand und Fortsetzung
 
-Version 0.1.0 liefert ein Management-Fundament mit PostgreSQL und Qdrant. Bestandsrepos wurden lesend gesichtet. Der veröffentlichte n8n-Vertrag umfasst die tatsächlich implementierten Pfade für Status und Datenimporte. Diese Fassung führt keine RAG- oder Agentenfunktionen aus.
+Version 0.2.0 führt das 0.1.0-Fundament, die Netzwerk-Erweiterung aus PR #3 und das n8n-Paket aus PR #4 in einem Backend-Entwicklungsbranch zusammen. Ein amd64-Add-on enthält Gateway, PostgreSQL, den Qdrant-Index und den lokalen Worker mit OCR und Docling. Status- und Schreibvertrag für n8n bleiben kompatibel. Lokale Dokumente und Uploads können indexiert und mit Quellen durchsucht werden.
 
-Die Netzwerk-Erweiterung ergänzt native Startoptionen, eine administrative API und persistente Dienstprofile. Nächster Schritt nach dem isolierten Container- und Proxy-Test ist die Abnahme auf einer separaten HAOS-Installation mit dem dort eingesetzten n8n und dessen realen OAuth-Callbacks. Die Netzwerkanforderungen und Zuständigkeiten stehen in [Netzwerk und Integrationen](NETWORK.md).
+Nächster Schritt ist ein Test auf einer separaten HAOS-Instanz oder in einem vorab gesicherten Testfenster am Fujitsu. Admin-Ingress, die interne Ollama-Route mit BGE-M3 und einem bestehenden Antwortmodell sowie die Rücksicherung über den Supervisor prüfen. Die n8n-Installation des Betreibers umfasst nach dessen Bericht Version 2.47.3, 53 Workflows, sechs Data Tables und 21 manuelle Fachtests. Die Generator-Korrektur für ISO-Daten lässt sich bei einem späteren Paketupdate gezielt übernehmen.
 
-Nach Bereitstellung der freigegebenen RAG-Dateien zuerst deren AGENTS.md und Compose-Overrides lesen. Service-Entrypoints, Schnittstellen, Migrationen und Lizenz je Komponente zur Matrix hinzufügen. An vorhandenen Fixtures Embedding-Dimension und Qdrant-Verträge reproduzieren, bevor eine Collection oder Migration entworfen wird. Danach die kleinste durchgängige Markdown-Verarbeitung mit Update, Quellenreferenz und Rücksicherung in einem neuen Datenvolume aufbauen.
+Danach Nextcloud-Dateiquellen und lokal synchronisierte Obsidian-Vaults mit eigenen Zugangsregeln anbinden. JARVIS und FRIDAY sind als spätere Assistentenprofile vorbereitet. Beeper folgt nach der Abnahme der übrigen Integrationen.
 
-Sobald eine getrennte HAOS-Testinstanz zugänglich ist, 0.1.0 lokal installieren. Ingress, Schlüsselwechsel, HAOS-Backup sowie Neuinstallation und Wiederherstellung in dieser Instanz protokollieren. Danach unabhängige HA-/Ollama- und Hermes-Konversationen bei gestopptem Add-on prüfen. Die [Abnahmeübersicht](TEST_REPORT.md) dokumentiert die verbleibenden Tests.
-
-Das eigenständige n8n-Paket liegt in [n8n/](../n8n/README.md). Die Workflows nutzen den veröffentlichten Import- und Statusvertrag 0.1.0. Setup, Credential-Bindung, konfigurierbare Adressen und die reale Importprüfung sind dort dokumentiert. Nächster Schritt ist der geführte Import in einer separaten n8n-/HAOS-Instanz mit freigegebenen Testkonten.
+[Testbericht](TEST_REPORT.md) · [Offene Punkte](OPEN_ISSUES.md)

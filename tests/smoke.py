@@ -47,7 +47,8 @@ def send(body, key=None):
 assert request("GET", "/healthz") == (200, {"status": "ok"})
 code, status = request("GET", STATUS, WORKFLOW)
 assert code == 200 and status["postgresql"]["version"].startswith("18."), (code, status)
-assert status["qdrant"] == {"available": True, "version": "1.18.0", "collections": 1}
+assert status["qdrant"]["available"] and status["qdrant"]["version"] == "1.18.0"
+assert status["qdrant"]["collections"] >= 1
 assert request("GET", STATUS)[0] == 401
 assert request("GET", PREFS, WORKFLOW)[0] == 401
 assert request("GET", NETWORK, WORKFLOW)[0] == 401

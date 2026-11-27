@@ -45,7 +45,7 @@ async function poll() {
 }
 
 function navigate() {
-  const pages = ["uebersicht", "system", "netzwerk"];
+  const pages = ["uebersicht", "wissen", "dokumente", "betrieb", "system", "netzwerk"];
   const hash = location.hash.slice(1);
   const page = pages.includes(hash) ? hash : "uebersicht";
   for (const id of pages) {
@@ -54,6 +54,8 @@ function navigate() {
     if (id === page) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   }
+  if (page === "dokumente" && token) void loadDocuments();
+  if (page === "betrieb" && token) void loadBackend();
   if (page === "netzwerk" && token) void loadNetwork();
 }
 window.addEventListener("hashchange", navigate);
@@ -93,6 +95,10 @@ byId("logout").addEventListener("click", () => {
   session = new AbortController();
   clearTimeout(timer);
   token = "";
+  for (const id of ["knowledge-query", "document-upload"]) byId(id).reset();
+  for (const id of ["knowledge-sources", "knowledge-output", "knowledge-message", "document-list", "documents-message", "backend-errors", "backend-message", "backend-jobs"]) byId(id).replaceChildren();
+  byId("backend-pause").disabled = true;
+  byId("documents-next").hidden = true;
   networkServices.clear();
   byId("network-form").reset();
   byId("network-form").hidden = true;
@@ -265,6 +271,156 @@ testButton.addEventListener("click", async () => {
     serviceSelect.disabled = false;
     testButton.disabled = !networkServices.get(serviceSelect.value)?.enabled;
   }
+});
+
+const jsonBody = (method, data) => ({
+  method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+});
+const stateLabels = {
+  idle: "Bereit", starting: "Startet", processing: "Verarbeitet", embedding: "Berechnet Vektoren",
+  repairing: "Gleicht Vektorindex ab", paused: "Pausiert", pending: "Wartet", running: "In Arbeit", done: "Indexiert", failed: "Fehlgeschlagen",
+};
+const answerLabels = {
+  model_not_configured: "Kein Antwortmodell konfiguriert.", model_unavailable: "Das Antwortmodell ist derzeit nicht erreichbar.",
+  no_evidence: "Keine passenden Belege gefunden.", unverified_citations: "Die Modellantwort enthielt keine gültigen Quellenmarken.",
+};
+
+async function perform(button, output, operation) {
+  const signal = session.signal;
+  button.disabled = true;
+  output.textContent = "Wird geladen …";
+  try {
+    return await operation(signal);
+  } catch (error) {
+    if (!signal.aborted) output.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+byId("knowledge-query").addEventListener("submit", event => {
+  event.preventDefault();
+  const message = byId("knowledge-message");
+  byId("knowledge-sources").replaceChildren();
+  byId("knowledge-output").textContent = "";
+  void perform(event.submitter, message, async signal => {
+    const result = await api("knowledge/query", {
+      ...jsonBody("POST", { question: byId("knowledge-question").value, answer: byId("knowledge-answer").checked,
+        profile: byId("knowledge-profile").value }),
+      timeout: 95000,
+    });
+    if (signal.aborted) return;
+    byId("knowledge-output").textContent = result.answer || answerLabels[result.answer_status] || "";
+    message.textContent = result.sources.length ? "Belege: " + result.sources.length : "Keine passenden Belege gefunden.";
+    for (const resultSource of result.sources) {
+      const item = document.createElement("li");
+      const title = document.createElement("strong");
+      const excerpt = document.createElement("p");
+      title.textContent = `[${resultSource.id}] ${resultSource.path} · ${resultSource.location}`;
+      excerpt.textContent = resultSource.excerpt;
+      item.append(title, excerpt);
+      byId("knowledge-sources").append(item);
+    }
+  });
+});
+
+let documentCursor;
+async function loadDocuments(append = false) {
+  const signal = session.signal;
+  const message = byId("documents-message");
+  try {
+    const suffix = append && documentCursor ? "?after=" + encodeURIComponent(documentCursor) : "";
+    const { documents, next } = await api("knowledge/documents" + suffix);
+    if (signal.aborted) return;
+    const list = byId("document-list");
+    if (!append) list.replaceChildren();
+    documentCursor = next;
+    byId("documents-next").hidden = !next;
+    message.textContent = documents.length || append ? "" : "Noch keine Dokumente vorgemerkt.";
+    for (const row of documents) {
+      const item = document.createElement("li");
+      item.textContent = `${row.path} · ${stateLabels[row.state] || row.state} · ${row.chunks} Segmente`;
+      if (row.error_code) item.append(` · ${row.error_code}`);
+      if (row.state === "failed" || row.state === "done") {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = row.state === "failed" ? "Wiederholen" : "Neu indexieren";
+        button.addEventListener("click", () => void perform(button, message, async current => {
+          await api("knowledge/retry", jsonBody("POST", { path: row.path, reindex: row.state === "done" }));
+          if (!current.aborted) await loadDocuments();
+        }));
+        item.append(" ", button);
+      }
+      list.append(item);
+    }
+  } catch (error) {
+    if (!signal.aborted) message.textContent = error.message;
+  }
+}
+
+byId("documents-next").addEventListener("click", () => void loadDocuments(true));
+byId("documents-refresh").addEventListener("click", () => void loadDocuments());
+byId("document-upload").addEventListener("submit", event => {
+  event.preventDefault();
+  const file = byId("document-file").files[0];
+  if (!file) return;
+  const message = byId("documents-message");
+  void perform(event.submitter, message, async signal => {
+    const result = await api("knowledge/documents/" + encodeURIComponent(file.name), {
+      method: "PUT", headers: { "Content-Type": "application/octet-stream" }, timeout: 95000, body: file,
+    });
+    if (signal.aborted) return;
+    byId("document-upload").reset();
+    await loadDocuments();
+    if (!signal.aborted) message.textContent = result.queued ? "Dokument zur Verarbeitung vorgemerkt." : "Diese Dateiversion ist bereits vorgemerkt.";
+  });
+});
+
+let paused = false;
+async function loadBackend() {
+  const signal = session.signal;
+  const message = byId("backend-message");
+  try {
+    const [system, knowledge] = await Promise.all([api("system/status"), api("knowledge/status")]);
+    if (signal.aborted) return;
+    const { worker, configuration: config } = knowledge;
+    byId("backend-db").textContent = system.postgresql.version;
+    byId("backend-vector").textContent = system.qdrant.available ? system.qdrant.version : "Nicht erreichbar";
+    byId("backend-documents").textContent = knowledge.documents;
+    byId("backend-worker").textContent = worker?.alive ? stateLabels[worker.phase] : "Kein aktuelles Signal";
+    if (worker?.detail) byId("backend-worker").append(` · ${worker.detail}`);
+    paused = worker?.paused === true;
+    byId("backend-pause").textContent = paused ? "Verarbeitung fortsetzen" : "Verarbeitung pausieren";
+    byId("backend-pause").disabled = false;
+    byId("backend-embed").textContent = `${config.rag_embed_model} · ${config.rag_dimensions} Dimensionen`;
+    byId("backend-model").textContent = config.rag_chat_model || "Noch kein Modell gewählt";
+    byId("backend-jobs").textContent = Object.entries(knowledge.jobs).map(([state, number]) => `${stateLabels[state]} ${number}`).join(" · ") || "Keine Aufträge.";
+    const errors = Object.entries(knowledge.errors);
+    byId("backend-errors").replaceChildren(...errors.map(([code, count]) => {
+      const item = document.createElement("li");
+      item.textContent = `${code} · ${count}`;
+      return item;
+    }));
+    message.textContent = "";
+  } catch (error) {
+    if (!signal.aborted) message.textContent = error.message;
+  }
+}
+
+byId("backend-repair").addEventListener("click", event => {
+  const message = byId("backend-message");
+  void perform(event.currentTarget, message, async signal => {
+    await api("knowledge/index/repair", { method: "POST" });
+    if (!signal.aborted) message.textContent = "Indexabgleich angefordert. Eine pausierte Verarbeitung zuerst fortsetzen.";
+  });
+});
+
+byId("backend-refresh").addEventListener("click", () => void loadBackend());
+byId("backend-pause").addEventListener("click", event => {
+  void perform(event.currentTarget, byId("backend-message"), async signal => {
+    await api("knowledge/worker", jsonBody("PUT", { paused: !paused }));
+    if (!signal.aborted) await loadBackend();
+  });
 });
 
 navigate();

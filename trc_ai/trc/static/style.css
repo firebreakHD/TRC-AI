@@ -46,3 +46,7 @@ select { font: inherit; padding: .65rem .8rem; border: 1px solid var(--line); bo
 @media (max-width: 44rem) {
   nav { flex-wrap: wrap; }
 }
+textarea { display: block; width: 100%; font: inherit; padding: .65rem; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: .55rem; }
+#knowledge-output { white-space: pre-wrap; }
+#document-list, #knowledge-sources { overflow-wrap: anywhere; }
+#document-list li button { margin-inline-start: .5rem; }

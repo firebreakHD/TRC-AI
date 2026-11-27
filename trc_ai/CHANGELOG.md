@@ -2,6 +2,10 @@
 
 ## 0.2.0
 
+- Dokumentverarbeitung mit OCR, Word-Struktur über Docling, Excel-Normalisierung, segmentierten Quellen und persistenter Warteschlange.
+- Hybride Wissenssuche, Quellenreferenzen, Qdrant-Abgleich und optionale Antworten mit vorhandenen Modellen.
+- Kompatible n8n-Import-API mit zusätzlichem Admin-Lesepfad. Korrekte Wiener ISO-Daten im n8n-Generator.
+
 - Native Optionen für getrennte interne und öffentliche Adressen, Proxy-Vertrauen, CA und Timeout.
 - Control Center mit persistenten Dienstprofilen und lesenden Verbindungstests.
 - Dokumentierte lokale, VPN-, Ingress- und HTTPS-Proxy-Betriebsarten.
